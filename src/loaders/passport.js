@@ -1,6 +1,7 @@
 import JwtStrategy from 'passport-jwt';
 import config from '../config/index';
 import User from '../models/User';
+import logger from './logger';
 const { Strategy, ExtractJwt } = JwtStrategy;
 
 const opts = {};
@@ -17,7 +18,7 @@ const passportFunction = (passport) => {
           next(null, false);
         }
       } catch (error) {
-        console.log(error);
+        logger.error(error);
       }
     }),
   );

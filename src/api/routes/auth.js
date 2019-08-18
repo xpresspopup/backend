@@ -1,8 +1,6 @@
 import { Router } from 'express';
-// import { Container } from 'typedi';
-// import AuthService from '../../services/auth';
-// import middlewares from '../middlewares';
-// import { celebrate, Joi } from 'celebrate';
+import passport from 'passport';
+import userRepository from '../../repository/auth';
 
 const route = Router();
 
@@ -11,4 +9,16 @@ export default (app) => {
   route.get('/test', (req, res) => {
     res.status(200).send('I am here for you');
   });
+  route.post('/signup', userRepository.signUp);
+  route.post('/signin', userRepository.signIn);
+  route.get(
+    '/profile',
+    passport.authenticate('jwt', { session: false }),
+    userRepository.currentProfile,
+  );
+  route.get(
+    '/logout',
+    passport.authenticate('jwt', { session: false }),
+    userRepository.logOut,
+  );
 };

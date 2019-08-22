@@ -3,21 +3,26 @@ import LoggerInstance from '../loaders/logger';
 import validation from './validations/user';
 import errorHandler from '../helpers/errorHandler';
 import User from '../models/User';
+import userRepository from '../repository/auth';
 export default class AuthService {
-  static async signUp(userInput, res) {
+  //   constructor ({userRepository, logger}) {
+  // this.userRepository = userRepository
+  // this.logger = logger
+  //   }
+  static async addUser(userInput, res) {
     try {
       const result = Joi.validate(userInput, validation.userSchema, {
         convert: false,
       });
       if (result.error === null) {
         const { email } = userInput;
-        const existUser = await User.findOne({ email });
-        if (!existUser) {
-          const user = new User(userInput);
-          await user.save();
-          return { user };
+        const existUser = await userRepository.getUserByEmail(email);
+        if (existUser) {
+          errorHandler.serverResponse(res, 'User already exist', 400);
         }
-        throw new Error('User already exist');
+        const user = new User(userInput);
+        await user.save();
+        return { user };
       }
       return errorHandler.validationError(res, result);
     } catch (e) {
@@ -26,27 +31,31 @@ export default class AuthService {
     }
   }
 
-  static async signIn(userInput, res) {
+  static async verifyUserSignIn(userInput, res) {
     try {
       const { email, password } = userInput;
       const result = Joi.validate(userInput, validation.signInUser, {
         convert: false,
       });
       if (result.error === null) {
-        const user = await User.findOne({ email });
+        const user = await userRepository.getUserByEmail(email);
         if (user) {
           const isMatch = await user.comparePassword(password);
           if (isMatch) {
-            const { token } = await user.generateToken();
-            return { token };
+            const { token, firstname, lastname } = await user.generateToken();
+            return { firstname, lastname, token };
           }
-          return res
-            .status(400)
-            .json({ loginSuccess: false, message: 'Password Incorrect' });
+          return errorHandler.serverResponse(
+            res,
+            'Password does not match',
+            400,
+          );
         }
-        return res
-          .status(404)
-          .json({ loginSuccess: false, message: 'User Not Found' });
+        return errorHandler.serverResponse(
+          res,
+          'User is not yet registered with this email',
+          404,
+        );
       }
       return errorHandler.validationError(res, result);
     } catch (e) {
@@ -57,39 +66,26 @@ export default class AuthService {
 
   static currentProfile(userDetails, res) {
     if (userDetails) {
-      const {
-        isAdmin, email, firstname, lastname,
-      } = userDetails;
-      const user = {
-        isAdmin,
-        isAuth: true,
-        email,
-        firstname,
-        lastname,
-      };
+      const user = { isAuth: true, ...userDetails._doc };
+      Reflect.deleteProperty(user, 'password');
       return user;
     }
-    return res.status(400).json({ message: 'User does not exist' });
+    return errorHandler.serverResponse(res, 'User does not exist', 400);
   }
 
   static async logOut(userDetails, res) {
     try {
-      LoggerInstance.info(userDetails._id);
-      const { token } = await User.findOneAndUpdate(
+      const result = await userRepository.updateUser(
         { _id: userDetails._id },
         { token: '' },
       );
-      LoggerInstance.info(token);
-      if (token === '') {
-        return res.status(200).json({
-          success: true,
-          message: 'Log out succesfully',
-        });
+      if (result) {
+        return true;
       }
+      return false;
     } catch (e) {
       LoggerInstance.error(e);
       throw e;
     }
-    return false;
   }
 }

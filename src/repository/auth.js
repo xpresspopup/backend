@@ -1,52 +1,30 @@
 import { Container } from 'typedi';
+import userModel from '../models/User';
 import logger from '../loaders/logger';
-import AuthService from '../services/auth';
 export default class userRepository {
-  static async signUp(req, res) {
+  // constructor({ userModel, logger }) {
+  //   // this.userModel = userModel;
+  // this.logger = logger
+  // }
+
+  static async getUserByEmail(email) {
     try {
-      const userInput = req.body;
-      logger.debug('Calling Sign-Up endpoint with body: %o', userInput);
-      const { user } = await AuthService.signUp(userInput, res);
-
-      return res.status(201).json({ message: 'Registration succesful', user });
+      const result = await userModel.findOne({ email });
+      return result;
     } catch (error) {
-      logger.error(error);
-    }
-    return false;
-  }
-
-  static async signIn(req, res) {
-    try {
-      const userInput = req.body;
-      logger.debug('Calling Sign-In endpoint with body: %o', userInput);
-      const { user, token } = await AuthService.signIn(userInput, res);
-
-      return res
-        .status(201)
-        .json({ message: 'Login success', user, token: `Bearer ${token}` });
-    } catch (error) {
-      logger.error(error);
-    }
-    return false;
-  }
-
-  static async currentProfile(req, res) {
-    try {
-      const userDetails = req.user;
-      const user = await AuthService.currentProfile(userDetails, res);
-      return res.status(200).json(user);
-    } catch (error) {
-      logger.error(error);
+      throw new Error('User not found');
     }
   }
 
-  static async logOut(req, res) {
+  static async updateUser(searchObject, fieldsToUpdate) {
     try {
-      const userDetails = req.user;
-      await AuthService.logOut(userDetails, res);
+      const result = await userModel.findOneAndUpdate(
+        searchObject,
+        fieldsToUpdate,
+      );
+      return result;
     } catch (error) {
-      logger.error(error);
+      throw new Error('User not found');
     }
-    return false;
   }
 }

@@ -7,4 +7,8 @@ export default class ErrorHandler {
       },
     });
   }
+
+  static serverResponse(res, message, status) {
+    return res.status(status).json({ message });
+  }
 }

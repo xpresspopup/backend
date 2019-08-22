@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import passport from 'passport';
-import userRepository from '../../repository/auth';
+// import userRepository from '../../repository/auth';
+import authController from '../../controllers/auth';
+import authService from '../../services/auth';
 
 const route = Router();
 
@@ -9,16 +11,16 @@ export default (app) => {
   route.get('/test', (req, res) => {
     res.status(200).send('I am here for you');
   });
-  route.post('/signup', userRepository.signUp);
-  route.post('/signin', userRepository.signIn);
+  route.post('/signup', authController.userSignUp);
+  route.post('/signin', authController.userSignIn);
   route.get(
     '/profile',
     passport.authenticate('jwt', { session: false }),
-    userRepository.currentProfile,
+    authController.userCurrentProfile,
   );
   route.get(
     '/logout',
     passport.authenticate('jwt', { session: false }),
-    userRepository.logOut,
+    authController.userLogOut,
   );
 };

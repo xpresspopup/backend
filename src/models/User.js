@@ -1,100 +1,81 @@
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable consistent-return */
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import config from '../config/index';
 const { Schema } = mongoose;
 
-const userSchema = new Schema({
-  firstname: {
-    type: String,
-    lowercase: true,
-    required: true,
-    maxlength: 100,
+const userSchema = new Schema(
+  {
+    firstname: {
+      type: String,
+      lowercase: true,
+      maxlength: 100,
+    },
+    lastname: {
+      type: String,
+      lowercase: true,
+      maxlength: 100,
+    },
+    title: {
+      /** for vendors or employers */
+      type: String,
+      lowercase: true,
+      maxlength: 100,
+    },
+    email: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      required: true,
+      unique: true,
+    },
+    password: {
+      type: String,
+      required: true,
+      minlength: 5,
+    },
+    token: {
+      type: String,
+      default: '',
+    },
+    phoneNumber: {
+      type: String,
+      minlength: 11,
+      maxlength: 14,
+    },
+    address: {
+      type: String,
+      lowercase: true,
+      maxlength: 255,
+    },
+    latitude: {
+      type: Number,
+    },
+    longitude: {
+      type: Number,
+    },
+    isActive: {
+      /** Used to deactivate a user */
+      type: Boolean,
+      default: false,
+    },
+    isAdmin: {
+      type: Boolean,
+    },
+    userType: {
+      type: String,
+      enum: ['blueCollar', 'whiteCollar', 'recruiter', 'employer', 'vendor'],
+    },
+    profilePic: {
+      type: String,
+    },
+    ipAddress: {
+      type: String,
+      default: null,
+    },
   },
-  lastname: {
-    type: String,
-    lowercase: true,
-    required: true,
-    maxlength: 100,
-  },
-  email: {
-    type: String,
-    trim: true,
-    lowercase: true,
-    required: true,
-    unique: true,
-  },
-  password: {
-    type: String,
-    required: true,
-    minlength: 5,
-  },
-  token: {
-    type: String,
-    default: '',
-  },
-  isVerified: {
-    type: Boolean,
-    default: false,
-  },
-  subcriptionType: {
-    type: String,
-    enum: ['free', 'diamond', 'premium'],
-  },
-  subscriptionStatus: {
-    type: Boolean,
-    default: false,
-  },
-  phoneNumber: {
-    type: String,
-    minlength: 11,
-    maxlength: 14,
-  },
-  gender: {
-    type: String,
-    enum: ['male', 'female', 'prefer not to say'],
-  },
-  address: {
-    type: String,
-    lowercase: true,
-    maxlength: 255,
-  },
-  state: {
-    type: String,
-    lowercase: true,
-    maxlength: 50,
-  },
-  local_govt_area: {
-    type: String,
-    lowercase: true,
-    maxlength: 100,
-  },
-  latitude: {
-    type: Number,
-  },
-  longitude: {
-    type: Number,
-  },
-  ageRange: {
-    type: String,
-  },
-  isAdmin: {
-    type: Boolean,
-  },
-  userType: {
-    type: String,
-    enum: ['blueCollar', 'whiteCollar', 'employer', 'recruiter'],
-  },
-  profilePic: {
-    type: String,
-  },
-  bio: {
-    type: String,
-    maxlength: 500,
-  },
-});
+  { timestamps: true },
+);
 userSchema.pre('save', async function hashPassword(next) {
   try {
     if (this.isModified('password')) {

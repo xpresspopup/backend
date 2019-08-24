@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import uuid from 'uuid';
 const { Schema } = mongoose;
 
 const jobSchema = new Schema(
@@ -16,10 +17,7 @@ const jobSchema = new Schema(
       maxlength: 100,
     },
     reference: {
-      /** Auto generated when job is created feom this schema */
       type: String,
-      lowercase: true,
-      unique: true,
     },
     description: {
       /** for white collar jobs its job description , while for blue collar jobs its client's brief */
@@ -31,6 +29,10 @@ const jobSchema = new Schema(
       enum: ['whiteCollar', 'blueCollar'],
     },
     address: {
+      type: String,
+      lowercase: true,
+    },
+    location: {
       type: String,
       lowercase: true,
     },
@@ -48,6 +50,19 @@ const jobSchema = new Schema(
   },
   { timestamps: true },
 );
-
+jobSchema.pre('save', async function genRef(next) {
+  try {
+    const date = new Date();
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+    const referenceRandom = uuid.v4();
+    const joined = `${year}${month}${day}`;
+    this.reference = `${joined}/${referenceRandom}`;
+    next();
+  } catch (error) {
+    return next(error);
+  }
+});
 const Job = mongoose.model('Job', jobSchema);
 export default Job;

@@ -5,7 +5,7 @@ const { Schema } = mongoose;
 const whiteCollarJobSchema = new Schema(
   {
     isApproved: {
-      /** Day it is approved it becomes the posted date until after 30days it becomes invalid */
+      /** when recuriter approve the jobs might be manual or automatic */
       type: Boolean,
       default: false,
     },

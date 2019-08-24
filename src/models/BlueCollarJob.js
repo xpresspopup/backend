@@ -32,7 +32,7 @@ const blueCollarJobSchema = new Schema(
       type: Date,
     },
     isCompleted: {
-      /** when the client agrees to get materials */
+      /** when the handyman closes / finishes the job */
       type: Boolean,
       default: false,
     },
@@ -44,7 +44,7 @@ const blueCollarJobSchema = new Schema(
       type: String,
     },
     isValid: {
-      /** it is valid as long as the admin say so or until after 5 dayss */
+      /** it is valid if b4 due date */
       type: Boolean,
       default: false,
     },

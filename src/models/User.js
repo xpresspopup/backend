@@ -17,7 +17,7 @@ const userSchema = new Schema(
       maxlength: 100,
     },
     title: {
-      /** for vendors or employers */
+      /** for vendors or employers  more like company name */
       type: String,
       lowercase: true,
       maxlength: 100,
@@ -35,6 +35,7 @@ const userSchema = new Schema(
       minlength: 5,
     },
     token: {
+      /** change token to array */
       type: String,
       default: '',
     },
@@ -42,11 +43,13 @@ const userSchema = new Schema(
       type: String,
       minlength: 11,
       maxlength: 14,
+      required: true,
     },
     address: {
       type: String,
       lowercase: true,
       maxlength: 255,
+      required: true,
     },
     latitude: {
       type: Number,
@@ -57,14 +60,27 @@ const userSchema = new Schema(
     isActive: {
       /** Used to deactivate a user */
       type: Boolean,
-      default: false,
+      default: true,
+    },
+    isVerified: {
+      type: Boolean,
+      default: true,
     },
     isAdmin: {
       type: Boolean,
+      default: false,
     },
     userType: {
       type: String,
-      enum: ['blueCollar', 'whiteCollar', 'recruiter', 'employer', 'vendor'],
+      enum: [
+        'blueCollar',
+        'whiteCollar',
+        'recruiter',
+        'employer',
+        'vendor',
+        'client',
+        'admin',
+      ],
     },
     profilePic: {
       type: String,

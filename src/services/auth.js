@@ -3,7 +3,15 @@ import LoggerInstance from '../loaders/logger';
 import validation from './validations/user';
 import errorHandler from '../helpers/errorHandler';
 import User from '../models/User';
+import WhiteCollar from '../models/WhiteCollarUser';
+import BlueCollar from '../models/BlueCollarUser';
+import Employer from '../models/Employer';
 import userRepository from '../repository/auth';
+import employerRepository from '../repository/employer';
+import whiteCollarRepository from '../repository/whiteCollar';
+import blueCollarRepository from '../repository/blueCollar';
+import functions from '../helpers/functions';
+import cloud from './cloudinary';
 export default class AuthService {
   //   constructor ({userRepository, logger}) {
   // this.userRepository = userRepository
@@ -15,14 +23,42 @@ export default class AuthService {
         convert: false,
       });
       if (result.error === null) {
-        const { email } = userInput;
+        const { email, userType } = userInput;
         const existUser = await userRepository.getUserByEmail(email);
         if (existUser) {
           errorHandler.serverResponse(res, 'User already exist', 400);
         }
         const user = new User(userInput);
         await user.save();
-        return { user };
+        const userDetails = { ...userInput };
+        userDetails.userId = user._id;
+        const whiteCollar = new WhiteCollar(userDetails);
+        const blueCollar = new BlueCollar(userDetails);
+        const employer = new Employer(userDetails);
+        switch (userType) {
+          case 'whiteCollar':
+            await whiteCollar.save();
+            break;
+          case 'blueCollar':
+            await blueCollar.save();
+            break;
+          case 'employer':
+            await employer.save();
+            break;
+          case 'client':
+            console.log('jude is an client');
+            break;
+          case 'vendor':
+            console.log('jude is an vendor');
+            break;
+          case 'admin':
+            console.log('jude is an admin');
+            break;
+
+          default:
+            break;
+        }
+        return user;
       }
       return errorHandler.validationError(res, result);
     } catch (e) {
@@ -38,7 +74,7 @@ export default class AuthService {
         convert: false,
       });
       if (result.error === null) {
-        const user = await userRepository.getUserByEmail(email);
+        const user = await userRepository.getActiveUserByEmail(email);
         if (user) {
           const isMatch = await user.comparePassword(password);
           if (isMatch) {
@@ -86,6 +122,54 @@ export default class AuthService {
     } catch (e) {
       LoggerInstance.error(e);
       throw e;
+    }
+  }
+
+  static async updateUserProfile(userDetails, res, userValue) {
+    try {
+      const result = Joi.validate(userDetails, validation.userUpdateSchema, {
+        convert: false,
+      });
+      if (result.error === null) {
+        // const { url } = await cloud(userDetails.profilePic);
+        const data = { ...userDetails };
+        // data.profilePic = url;
+        const { _id, userType } = userValue;
+        switch (userType) {
+          case 'whiteCollar':
+            await whiteCollarRepository.updateUser(_id, userDetails);
+            break;
+          case 'blueCollar':
+            blueCollarRepository.updateUser(_id, userDetails);
+            break;
+          case 'employer':
+            employerRepository.updateUser(_id, userDetails);
+            break;
+          case 'client':
+            console.log('jude is an client');
+            break;
+          case 'vendor':
+            console.log('jude is an vendor');
+            break;
+          case 'admin':
+            console.log('jude is an admin');
+            break;
+
+          default:
+            break;
+        }
+        const searchFields = { _id };
+        const doc = await userRepository.updateUser(searchFields, data);
+        if (doc) {
+          return doc;
+        }
+        throw new Error('User not found');
+        // return await functions.updateUser(_id, data);
+      }
+      return errorHandler.validationError(res, result);
+    } catch (error) {
+      LoggerInstance.error(error);
+      throw error;
     }
   }
 }

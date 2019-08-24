@@ -16,6 +16,11 @@ export default {
   api: {
     prefix: '/api',
   },
+  cloudinary: {
+    cloudName: process.env.CLOUD_NAME,
+    apikey: process.env.CLOUDINARY_API_KEY,
+    secret: process.env.CLOUDINARY_API_SECRET,
+  },
   agenda: {
     dbCollection: process.env.AGENDA_DB_COLLECTION,
     pooltime: process.env.AGENDA_POOL_TIME,

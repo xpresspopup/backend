@@ -8,10 +8,6 @@ const whiteCollarSchema = new Schema(
       type: String,
       maxlength: 500,
     },
-    isVerified: {
-      type: Boolean,
-      default: false,
-    },
     subcriptionType: {
       type: String,
       enum: ['free', 'diamond', 'premium'],
@@ -25,10 +21,8 @@ const whiteCollarSchema = new Schema(
       type: String,
       enum: ['male', 'female', 'prefer not to say'],
     },
-    address: {
+    cvUrl: {
       type: String,
-      lowercase: true,
-      maxlength: 255,
     },
     stateOfOrigin: {
       type: String,
@@ -44,7 +38,7 @@ const whiteCollarSchema = new Schema(
       type: String,
     },
 
-    userDetails: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    userId: { type: Schema.Types.ObjectId, ref: 'User' },
     jobsApplied: [{ type: Schema.Types.ObjectId, ref: 'Job' }],
     jobHistory: [{ type: Schema.Types.ObjectId, ref: 'Job' }],
   },

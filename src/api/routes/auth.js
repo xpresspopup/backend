@@ -14,7 +14,7 @@ export default (app) => {
   route.post('/signup', authController.userSignUp);
   route.post('/signin', authController.userSignIn);
   route.get(
-    '/profile',
+    '/',
     passport.authenticate('jwt', { session: false }),
     authController.userCurrentProfile,
   );
@@ -22,5 +22,12 @@ export default (app) => {
     '/logout',
     passport.authenticate('jwt', { session: false }),
     authController.userLogOut,
+  );
+
+  /** updates a user profile with all the required fields */
+  route.put(
+    '/',
+    passport.authenticate('jwt', { session: false }),
+    authController.updateUser,
   );
 };

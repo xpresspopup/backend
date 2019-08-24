@@ -4,27 +4,9 @@ const { Schema } = mongoose;
 
 const blueCollarSchema = new Schema(
   {
-    isVerified: {
-      type: Boolean,
-      default: false,
-    },
-    subcriptionType: {
-      type: String,
-      enum: ['free', 'platinium'],
-    },
-    subscriptionStatus: {
-      /** Used to know when a subcription is active or not */
-      type: Boolean,
-      default: false,
-    },
     gender: {
       type: String,
       enum: ['male', 'female', 'prefer not to say'],
-    },
-    address: {
-      type: String,
-      lowercase: true,
-      maxlength: 255,
     },
     stateOfOrigin: {
       type: String,
@@ -43,9 +25,9 @@ const blueCollarSchema = new Schema(
       type: Number,
     },
 
-    userDetails: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    userId: { type: Schema.Types.ObjectId, ref: 'User' },
     jobsHistory: [{ type: Schema.Types.ObjectId, ref: 'Job' }],
-    ongoingJob: [{ type: Schema.Types.ObjectId, ref: 'Job' }],
+    openJob: [{ type: Schema.Types.ObjectId, ref: 'Job' }],
   },
   { timestamps: true },
 );

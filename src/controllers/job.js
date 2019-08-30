@@ -27,4 +27,27 @@ export default class jobController {
       throw new Error();
     }
   }
+
+  static async getJobWithin(req, res) {
+    try {
+      const jobDetails = req.body;
+      const { user } = req;
+      const doc = await jobService.jobsWithin(res, jobDetails, user);
+      return res.status(201).json({ doc });
+    } catch (error) {
+      LoggerInstance.error(error);
+      throw new Error(error);
+    }
+  }
+
+  static async searchByCategory(req, res) {
+    try {
+      const { category } = req.query;
+      const doc = await jobService.jobsByCategory(res, category);
+      return res.status(201).json({ doc });
+    } catch (error) {
+      LoggerInstance.error(error);
+      throw new Error(error);
+    }
+  }
 }

@@ -11,6 +11,7 @@ const whiteCollarSchema = new Schema(
     subcriptionType: {
       type: String,
       enum: ['free', 'diamond', 'premium'],
+      default: 'free',
     },
     subscriptionStatus: {
       /** Used to know when a subcription is active or not */

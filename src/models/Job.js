@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import uuid from 'uuid';
 const { Schema } = mongoose;
 
 const jobSchema = new Schema(
@@ -19,28 +18,40 @@ const jobSchema = new Schema(
     reference: {
       type: String,
     },
-    description: {
-      /** for white collar jobs its job description , while for blue collar jobs its client's brief */
-      type: String,
-      lowercase: true,
+    isApproved: {
+      /** when the admin approves the job posting */
+      type: Boolean,
+      default: true,
+    },
+    isValid: {
+      /** if its approved and within due date */
+      type: Boolean,
+      default: true,
+    },
+    dueDate: {
+      /** due date is set by the client or 5days after posting for blueCollar 20 days after for whiteCollar */
+      type: Date,
+    },
+    postedDate: {
+      /** Day it is approved */
+      type: Date,
     },
     jobType: {
       type: String,
       enum: ['whiteCollar', 'blueCollar'],
+    },
+    description: {
+      /** for white collar jobs its job description , while for blue collar jobs its client's brief */
+      type: String,
+      lowercase: true,
     },
     address: {
       type: String,
       lowercase: true,
     },
     location: {
-      type: String,
-      lowercase: true,
-    },
-    latitude: {
-      type: Number,
-    },
-    longitude: {
-      type: Number,
+      type: { type: String },
+      coordinates: [],
     },
     created_by: {
       type: Schema.Types.ObjectId,
@@ -52,17 +63,23 @@ const jobSchema = new Schema(
 );
 jobSchema.pre('save', async function genRef(next) {
   try {
-    const date = new Date();
-    const day = date.getDate();
-    const month = date.getMonth() + 1;
-    const year = date.getFullYear();
-    const referenceRandom = uuid.v4();
-    const joined = `${year}${month}${day}`;
-    this.reference = `${joined}/${referenceRandom}`;
+    let result = '';
+    const myNumber = parseInt(Math.random() * 1000000000, 10);
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const charactersLength = characters.length;
+    characters.split('').forEach((element, i) => {
+      if (i < 2) {
+        result += characters.charAt(
+          Math.floor(Math.random() * charactersLength),
+        );
+      }
+    });
+    this.reference = `${result}/${myNumber}`;
     next();
   } catch (error) {
     return next(error);
   }
 });
+jobSchema.index({ location: '2dsphere' });
 const Job = mongoose.model('Job', jobSchema);
 export default Job;

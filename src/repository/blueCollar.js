@@ -22,6 +22,21 @@ export default class blueColarRepository {
     }
   }
 
+  static async getVerifiedBlueCollarByUserId(_id) {
+    try {
+      const result = await blueCollarModel.findOne({
+        userId: _id,
+      });
+
+      if (result) {
+        return result;
+      }
+      throw new Error('User not found');
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
   static async updateUser(userId, fieldsToUpdate) {
     try {
       const result = await blueCollarModel.findOneAndUpdate(

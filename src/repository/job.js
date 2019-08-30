@@ -14,9 +14,55 @@ export default class jobRepository {
       if (result) {
         return result;
       }
-      return false;
-    } catch (error) {
       throw new Error('User not found');
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  static async getJobsWithinDistance(
+    { latitude, longitude },
+    searchObject,
+    maxDistance,
+  ) {
+    try {
+      const job = await jobModel.find({
+        $query: {
+          isValid: true,
+          ...searchObject,
+        },
+        location: {
+          $near: {
+            $maxDistance: maxDistance,
+            $geometry: {
+              type: 'Point',
+              coordinates: [longitude, latitude],
+            },
+          },
+        },
+      });
+      if (job) {
+        return job;
+      }
+      throw new Error('No available job within this region');
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  static async searchJobsByCategory(category) {
+    try {
+      const job = await jobModel.find({
+        category,
+        isValid: true,
+        jobType: 'whiteCollar',
+      });
+      if (job) {
+        return job;
+      }
+      throw new Error('No job with this category');
+    } catch (error) {
+      throw new Error(error);
     }
   }
 }

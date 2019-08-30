@@ -10,6 +10,7 @@ import userRepository from '../repository/auth';
 import employerRepository from '../repository/employer';
 import whiteCollarRepository from '../repository/whiteCollar';
 import blueCollarRepository from '../repository/blueCollar';
+import emailService from './emailService';
 import functions from '../helpers/functions';
 import cloud from './cloudinary';
 export default class AuthService {

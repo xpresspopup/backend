@@ -31,6 +31,11 @@ const whiteCollarJobSchema = new Schema(
       ref: 'User',
       required: true,
     },
+    jobId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Job',
+      required: true,
+    },
   },
   { timestamps: true },
 );

@@ -17,11 +17,13 @@ export default class Job {
         .min(5)
         .required(),
       longitude: Joi.number()
-        .max(90)
-        .min(-90),
+        .greater(-90)
+        .less(90)
+        .precision(6),
       latitude: Joi.number()
-        .max(90)
-        .min(-90),
+        .greater(-90)
+        .less(90)
+        .precision(6),
     });
   }
 }

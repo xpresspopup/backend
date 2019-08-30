@@ -31,6 +31,17 @@ export default {
     user: 'agendash',
     password: '123456',
   },
+  distance: {
+    premiumDistance: process.env.PREMIUM_DISTANCE,
+    diamondDistance: process.env.DIAMOND_DISTANCE,
+    freeDistance: process.env.FREE_DISTANCE,
+    agentDistance: process.env.AGENT_DISTANCE,
+  },
+  mailGun: {
+    activeApi: process.env.MAILGUN_ACTIVE_API_KEY,
+    domainName: process.env.MAILGUN_DOMAIN,
+    companySendingEmail: process.env.COMPANY_SENDING_EMAIL,
+  },
   // paypal: {
   //   publicKey: process.env.PAYPAL_PUBLIC_KEY,
   //   secretKey: process.env.PAYPAL_SECRET_KEY,

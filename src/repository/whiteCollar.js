@@ -16,9 +16,28 @@ export default class whiteCollarRepository {
         isActive: true,
         userType: 'whiteCollar',
       });
-      return result;
-    } catch (error) {
+
+      if (result) {
+        return result;
+      }
       throw new Error('User not found');
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  static async getVerifiedWhiteCollarByUserId(_id) {
+    try {
+      const result = await whiteCollarModel.findOne({
+        userId: _id,
+      });
+
+      if (result) {
+        return result;
+      }
+      throw new Error('User not found');
+    } catch (error) {
+      throw new Error(error);
     }
   }
 

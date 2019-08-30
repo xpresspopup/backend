@@ -14,7 +14,7 @@ export default class employerRepository {
         email,
         isVerified: true,
         isActive: true,
-        userType: 'employer',
+        $and: [{ $or: [{ userType: 'employer' }, { userType: 'admin' }] }],
       });
       return result;
     } catch (error) {

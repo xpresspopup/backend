@@ -20,6 +20,10 @@ const blueCollarSchema = new Schema(
     },
     ageRange: {
       type: String,
+      enum: ['18-21', '22-25', '26-30', '31-35', '36-45', '45 and above'],
+    },
+    dateOfBirth: {
+      type: Date,
     },
     starRating: {
       type: Number,

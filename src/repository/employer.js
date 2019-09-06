@@ -22,6 +22,20 @@ export default class employerRepository {
     }
   }
 
+  // static async getVerifiedEmployerById(userId) {
+  //   try {
+  //     const result = await userModel.findOne({
+  //       userId,
+  //       isVerified: true,
+  //       isActive: true,
+  //       $and: [{ $or: [{ userType: 'employer' }, { userType: 'admin' }] }],
+  //     });
+  //     return result;
+  //   } catch (error) {
+  //     throw new Error('User not found');
+  //   }
+  // }
+
   static async updateUser(userId, fieldsToUpdate) {
     try {
       const result = await employerModel.findOneAndUpdate(

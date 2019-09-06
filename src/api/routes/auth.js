@@ -8,9 +8,7 @@ const route = Router();
 
 export default (app) => {
   app.use('/auth', route);
-  route.get('/test', (req, res) => {
-    res.status(200).send('I am here for you');
-  });
+
   route.post('/signup', authController.userSignUp);
   route.post('/signin', authController.userSignIn);
   route.get(

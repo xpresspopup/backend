@@ -9,7 +9,8 @@ export default class jobController {
   static async postJob(req, res) {
     try {
       const jobData = req.body;
-      await jobService.addJob(jobData, res);
+      const userDetails = req.user;
+      await jobService.addJob(jobData, userDetails, res);
       return res.status(201).json({ message: 'Job created succesfully' });
     } catch (error) {
       LoggerInstance.error(error);
@@ -21,7 +22,7 @@ export default class jobController {
     try {
       const { jobType } = req.query;
       const doc = await jobService.allJobs(res, jobType);
-      return res.status(201).json({ doc });
+      return res.status(201).json({ doc, count: doc.length });
     } catch (error) {
       LoggerInstance.error(error);
       throw new Error();
@@ -30,7 +31,7 @@ export default class jobController {
 
   static async getJobWithin(req, res) {
     try {
-      const jobDetails = req.body;
+      const jobDetails = req.query;
       const { user } = req;
       const doc = await jobService.jobsWithin(res, jobDetails, user);
       return res.status(201).json({ doc });
@@ -44,7 +45,18 @@ export default class jobController {
     try {
       const { category } = req.query;
       const doc = await jobService.jobsByCategory(res, category);
-      return res.status(201).json({ doc });
+      return res.status(200).json({ doc });
+    } catch (error) {
+      LoggerInstance.error(error);
+      throw new Error(error);
+    }
+  }
+
+  static async getJobById(req, res) {
+    try {
+      const { id } = req.params;
+      const doc = await jobService.jobById(res, id);
+      return res.status(200).json(doc);
     } catch (error) {
       LoggerInstance.error(error);
       throw new Error(error);

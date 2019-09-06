@@ -49,7 +49,6 @@ const userSchema = new Schema(
       type: String,
       lowercase: true,
       maxlength: 255,
-      required: true,
     },
     latitude: {
       type: Number,
@@ -122,7 +121,7 @@ userSchema.methods.generateToken = async function genToken() {
       isAdmin: this.isAdmin,
     };
     const token = await jwt.sign(payload, config.secretOrKey);
-    this.token = token;
+    this.token = `Bearer ${token}`;
     const doc = await this.save();
     return doc;
   } catch (error) {

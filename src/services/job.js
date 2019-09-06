@@ -3,6 +3,8 @@ import LoggerInstance from '../loaders/logger';
 import validation from './validations/job';
 import errorHandler from '../helpers/errorHandler';
 import Job from '../models/Job';
+import BlueCollarJob from '../models/BlueCollarJob';
+import WhiteCollarJob from '../models/WhiteCollarJob';
 import User from '../models/User';
 import jobRepository from '../repository/job';
 import employerRepository from '../repository/employer';
@@ -18,9 +20,10 @@ export default class jobService {
   // this.userRepository = userRepository
   // this.logger = logger
   //   }
-  static async addJob(jobInput, res) {
+  static async addJob(jobInput, userDetails, res) {
     try {
-      const { email, longitude, latitude } = jobInput;
+      const { longitude, latitude } = jobInput;
+      const { email } = userDetails;
       const jobObject = { ...jobInput };
       jobObject.longitude = parseFloat(longitude, 10);
       jobObject.latitude = parseFloat(latitude, 10);
@@ -38,6 +41,19 @@ export default class jobService {
           };
           const job = new Job(jobObject);
           await job.save();
+          jobObject.jobId = job._id;
+          const whiteCollar = new WhiteCollarJob(jobObject);
+          const blueCollar = new BlueCollarJob(jobObject);
+          switch (job.jobType) {
+            case 'whiteCollar':
+              await whiteCollar.save();
+              break;
+            case 'blueCollar':
+              await blueCollar.save();
+              break;
+            default:
+              break;
+          }
           /** check why this email service not sending emails */
           // await emailService.sendText(
           //   email,
@@ -122,6 +138,35 @@ export default class jobService {
       const job = await jobRepository.searchJobsByCategory(category);
       if (job) {
         return job;
+      }
+      return false;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  static async jobById(res, id) {
+    try {
+      if (id === '') {
+        return errorHandler.serverResponse(res, 'invalid id passed', 400);
+      }
+      const job = await jobRepository.findJobsById(id);
+      if (job) {
+        let result;
+        switch (job.jobType) {
+          case 'blueCollar':
+            console.log('blue collar');
+            result = await blueCollarRepository.getBlueCollarJobById(id);
+            break;
+          case 'whiteCollar':
+            console.log('white collar');
+            result = await whiteCollarRepository.getWhiteCollarJobById(id);
+            break;
+          default:
+            break;
+        }
+
+        return result;
       }
       return false;
     } catch (error) {

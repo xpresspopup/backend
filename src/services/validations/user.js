@@ -17,12 +17,9 @@ export default class User {
         .max(30)
         .required(),
       phoneNumber: Joi.string()
-        .required()
         .min(11)
         .max(14),
-      address: Joi.string()
-        .required()
-        .max(255),
+      address: Joi.string().max(255),
       ipAddress: Joi.string(),
       userType: Joi.string()
         .required()
@@ -78,6 +75,7 @@ export default class User {
       // whiteCollar validation
       cvUrl: Joi.string(),
       bio: Joi.string().max(500),
+      dateOfBirth: Joi.string(),
     });
   }
 

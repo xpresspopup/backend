@@ -1,6 +1,7 @@
 import { Container } from 'typedi';
 import userModel from '../models/User';
 import blueCollarModel from '../models/BlueCollarUser';
+import blueCollarJob from '../models/BlueCollarJob';
 import logger from '../loaders/logger';
 export default class blueColarRepository {
   // constructor({ userModel, logger }) {
@@ -32,6 +33,22 @@ export default class blueColarRepository {
         return result;
       }
       throw new Error('User not found');
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  static async getBlueCollarJobById(id) {
+    try {
+      const result = await blueCollarJob
+        .findOne({
+          jobId: id,
+        })
+        .populate('Job');
+      if (result) {
+        return result;
+      }
+      throw new Error('Job not found');
     } catch (error) {
       throw new Error(error);
     }

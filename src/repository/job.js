@@ -1,7 +1,5 @@
-import { Container } from 'typedi';
 import userModel from '../models/User';
 import jobModel from '../models/Job';
-import logger from '../loaders/logger';
 export default class jobRepository {
   // constructor({ userModel, jobModel, logger }) {
   //   // this.userModel = userModel;
@@ -56,6 +54,21 @@ export default class jobRepository {
         category,
         isValid: true,
         jobType: 'whiteCollar',
+      });
+      if (job) {
+        return job;
+      }
+      throw new Error('No job with this category');
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  static async findJobsById(id) {
+    try {
+      const job = await jobModel.findOne({
+        _id: id,
+        isValid: true,
       });
       if (job) {
         return job;

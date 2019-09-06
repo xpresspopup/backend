@@ -1,6 +1,7 @@
 import { Container } from 'typedi';
 import userModel from '../models/User';
 import whiteCollarModel from '../models/WhiteCollarUser';
+import whiteCollarJob from '../models/WhiteCollarJob';
 import logger from '../loaders/logger';
 export default class whiteCollarRepository {
   // constructor({ userModel, logger }) {
@@ -36,6 +37,22 @@ export default class whiteCollarRepository {
         return result;
       }
       throw new Error('User not found');
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  static async getWhiteCollarJobById(id) {
+    try {
+      const result = await whiteCollarJob
+        .findOne({
+          jobId: id,
+        })
+        .populate('jobId');
+      if (result) {
+        return result;
+      }
+      throw new Error('Job not found');
     } catch (error) {
       throw new Error(error);
     }

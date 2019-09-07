@@ -29,6 +29,7 @@ export default class authController {
         userData,
         res,
       );
+      console.log(token);
       return res.status(201).json({
         message: 'Login successfully',
         firstname,

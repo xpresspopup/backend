@@ -3,6 +3,9 @@
 	"version": "1.0.0",
 	"description": "Backend",
 	"main": "src/server.js",
+	"quokka": {
+		"babel": true
+	},
 	"scripts": {
 		"dev": "nodemon --exec babel-node ./src/server.js",
 		"lint": "eslint src/  --fix",

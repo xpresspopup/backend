@@ -29,7 +29,6 @@ export default class authController {
         userData,
         res,
       );
-      console.log(token);
       return res.status(201).json({
         message: 'Login successfully',
         firstname,
@@ -63,9 +62,6 @@ export default class authController {
   static async updateUser(req, res) {
     try {
       const userDetails = req.body;
-      // userDetails.profilePic = req.files;
-      console.log(userDetails.bio, 'details');
-      console.log(req.files, 'pics');
       const userValue = req.user;
       const result = await authService.updateUserProfile(
         userDetails,
@@ -81,6 +77,27 @@ export default class authController {
     }
   }
 
+  static async updateProfilePicture(req, res) {
+    try {
+      const profilePic = req.files[0].path;
+      const userValue = req.user;
+      const result = await authService.uploadPicture(
+        profilePic,
+        userValue,
+        res,
+      );
+      if (result) {
+        return res
+          .status(200)
+          .json({ message: 'profile picture uploaded succesfully' });
+      }
+      return false;
+    } catch (error) {
+      LoggerInstance.error(error);
+      throw new Error(error);
+    }
+  }
+
   static async verifySignUp(req, res) {
     try {
       const { confirmCode, email } = req.body;
@@ -90,6 +107,25 @@ export default class authController {
           .status(200)
           .json({ message: 'User registration completed, Please login' });
       }
+    } catch (error) {
+      LoggerInstance.error(error);
+      throw new Error(error);
+    }
+  }
+
+  static async uploadPicture(req, res) {
+    try {
+      const profilePic = req.files[0].path;
+      const userValue = req.user;
+      const result = await authService.uploadPicture(
+        profilePic,
+        userValue,
+        res,
+      );
+      if (result) {
+        return res.status(200).json({ mesage: 'Image uploaded successfully' });
+      }
+      return false;
     } catch (error) {
       LoggerInstance.error(error);
       throw new Error(error);

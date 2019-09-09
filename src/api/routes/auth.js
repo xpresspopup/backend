@@ -1,8 +1,7 @@
 import { Router } from 'express';
 import passport from 'passport';
-// import userRepository from '../../repository/auth';
+import upload from '../../services/multerService';
 import authController from '../../controllers/auth';
-import authService from '../../services/auth';
 
 const route = Router();
 
@@ -28,5 +27,12 @@ export default (app) => {
     '/',
     passport.authenticate('jwt', { session: false }),
     authController.updateUser,
+  );
+  /** Upload profile picture for user */
+  route.put(
+    '/upload',
+    passport.authenticate('jwt', { session: false }),
+    upload.any(),
+    authController.uploadPicture,
   );
 };

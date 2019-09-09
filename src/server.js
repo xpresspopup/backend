@@ -3,7 +3,7 @@ import loaders from './loaders';
 
 const startServer = async () => {
   const app = express();
-
+  app.use('/uploads', express.static('uploads'));
   await loaders(app);
 
   const PORT = process.env.PORT || 5555;

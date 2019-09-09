@@ -168,17 +168,32 @@ export default class AuthService {
     }
   }
 
+  static async uploadPicture(profilePicPath, userValue, res) {
+    try {
+      const { url } = await cloud(profilePicPath);
+      const { email } = userValue;
+      if (url) {
+        console.log(email);
+        const doc = userRepository.updateUser({ email }, { profilePic: url });
+        if (doc) {
+          return doc;
+        }
+        return false;
+      }
+      return res.status(400).json('Something went wrong with the image upload');
+    } catch (error) {
+      LoggerInstance.error(error);
+      throw error;
+    }
+  }
+
   static async updateUserProfile(userDetails, res, userValue) {
     try {
       const result = Joi.validate(userDetails, validation.userUpdateSchema, {
         convert: false,
       });
       if (result.error === null) {
-        const { url } = await cloud(userDetails.profilePic);
-
         const data = { ...userDetails };
-        data.profilePic = url;
-        console.log(url, 'url');
         const { _id, userType } = userValue;
         switch (userType) {
           case 'whiteCollar':

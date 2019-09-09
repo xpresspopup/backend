@@ -10,7 +10,8 @@ import userRepository from '../repository/auth';
 import employerRepository from '../repository/employer';
 import whiteCollarRepository from '../repository/whiteCollar';
 import blueCollarRepository from '../repository/blueCollar';
-import emailService from './emailService';
+import emailService from './emailService2';
+import emailTemplate from '../helpers/emailTemplates';
 import functions from '../helpers/functions';
 import cloud from './cloudinary';
 export default class AuthService {
@@ -29,8 +30,16 @@ export default class AuthService {
         if (existUser) {
           errorHandler.serverResponse(res, 'User already exist', 400);
         }
-        const user = new User(userInput);
+        const userObject = { ...userInput };
+        const confirmCode = functions.generateConfirmCode();
+        userObject.confirmationCode = confirmCode;
+        const user = new User(userObject);
         await user.save();
+        await emailService.sendText(
+          email,
+          'Confirm your account',
+          emailTemplate.confirmEmail(confirmCode),
+        );
         const userDetails = { ...userInput };
         userDetails.userId = user._id;
         const whiteCollar = new WhiteCollar(userDetails);
@@ -62,6 +71,39 @@ export default class AuthService {
         return user;
       }
       return errorHandler.validationError(res, result);
+    } catch (e) {
+      LoggerInstance.error(e);
+      throw e;
+    }
+  }
+
+  static async verifyRegUser(confirmCode, email, res) {
+    try {
+      const doc = await userRepository.getUserByEmail(email);
+      if (doc) {
+        const confirmationCode =					!Number.isNaN(confirmCode) && String(confirmCode).trim().length === 6
+					  ? parseInt(confirmCode, 10)
+					  : 'Invalid activation code';
+        if (doc.confirmationCode !== confirmationCode) {
+          return errorHandler.serverResponse(
+            res,
+            'Invalid confirmation code',
+            400,
+          );
+        }
+        const rslt = await userRepository.updateUser(
+          { email, accountConfirm: false },
+          { accountConfirm: true, isActive: true },
+        );
+        if (rslt) {
+          await emailService.sendText(
+            email,
+            'Welcome to Pop Express',
+            emailTemplate.registrationEmail(),
+          );
+        }
+        return true;
+      }
     } catch (e) {
       LoggerInstance.error(e);
       throw e;
@@ -132,9 +174,11 @@ export default class AuthService {
         convert: false,
       });
       if (result.error === null) {
-        // const { url } = await cloud(userDetails.profilePic);
+        const { url } = await cloud(userDetails.profilePic);
+
         const data = { ...userDetails };
-        // data.profilePic = url;
+        data.profilePic = url;
+        console.log(url, 'url');
         const { _id, userType } = userValue;
         switch (userType) {
           case 'whiteCollar':
@@ -164,8 +208,6 @@ export default class AuthService {
         if (doc) {
           return doc;
         }
-        throw new Error('User not found');
-        // return await functions.updateUser(_id, data);
       }
       return errorHandler.validationError(res, result);
     } catch (error) {

@@ -11,7 +11,7 @@ export default async (app) => {
   app.enable('trust proxy');
   app.use(morgan('dev'));
   app.use(bodyParser.json());
-  app.use(bodyParser.urlencoded({ extended: false }));
+  app.use(bodyParser.urlencoded({ extended: true }));
   app.use(passport.initialize());
   passportFunction(passport);
   app.use(config.api.prefix, routes());

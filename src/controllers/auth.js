@@ -63,8 +63,9 @@ export default class authController {
   static async updateUser(req, res) {
     try {
       const userDetails = req.body;
-      // userDetails.profilePic = req.files[0].path;
-      // console.log(userDetails);
+      // userDetails.profilePic = req.files;
+      console.log(userDetails.bio, 'details');
+      console.log(req.files, 'pics');
       const userValue = req.user;
       const result = await authService.updateUserProfile(
         userDetails,
@@ -76,7 +77,22 @@ export default class authController {
       }
     } catch (error) {
       LoggerInstance.error(error);
-      throw new Error();
+      throw new Error(error);
+    }
+  }
+
+  static async verifySignUp(req, res) {
+    try {
+      const { confirmCode, email } = req.body;
+      const result = await authService.verifyRegUser(confirmCode, email, res);
+      if (result) {
+        return res
+          .status(200)
+          .json({ message: 'User registration completed, Please login' });
+      }
+    } catch (error) {
+      LoggerInstance.error(error);
+      throw new Error(error);
     }
   }
 }

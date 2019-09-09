@@ -10,6 +10,7 @@ export default (app) => {
   app.use('/auth', route);
 
   route.post('/signup', authController.userSignUp);
+  route.post('/verify', authController.verifySignUp);
   route.post('/signin', authController.userSignIn);
   route.get(
     '/',

@@ -11,7 +11,7 @@ import employerRepository from '../repository/employer';
 import userRepository from '../repository/auth';
 import whiteCollarRepository from '../repository/whiteCollar';
 import blueCollarRepository from '../repository/blueCollar';
-import emailService from './emailService';
+import emailService from './emailService2';
 import emailTemplate from '../helpers/emailTemplates';
 import config from '../config';
 import functions from '../helpers/functions';
@@ -54,12 +54,11 @@ export default class jobService {
             default:
               break;
           }
-          /** check why this email service not sending emails */
-          // await emailService.sendText(
-          //   email,
-          //   'Sucessful Job creation',
-          //   emailTemplate.successfulJobCreated(job),
-          // );
+          await emailService.sendText(
+            email,
+            'Sucessful Job creation',
+            emailTemplate.successfulJobCreated(job),
+          );
           return true;
         }
         errorHandler.serverResponse(res, 'User is not an employer', 400);

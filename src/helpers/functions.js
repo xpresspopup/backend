@@ -1,3 +1,5 @@
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import userRepository from '../repository/auth';
 import whiteCollarRepository from '../repository/whiteCollar';
 import blueCollarRepository from '../repository/blueCollar';
@@ -44,5 +46,9 @@ export default class functions {
     } catch (error) {
       throw new Error(error);
     }
+  }
+
+  static generateConfirmCode() {
+    return Math.floor(100000 + Math.random() * 900000);
   }
 }

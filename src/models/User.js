@@ -43,7 +43,6 @@ const userSchema = new Schema(
       type: String,
       minlength: 11,
       maxlength: 14,
-      required: true,
     },
     address: {
       type: String,
@@ -59,11 +58,19 @@ const userSchema = new Schema(
     isActive: {
       /** Used to deactivate a user */
       type: Boolean,
-      default: true,
+      default: false,
     },
     isVerified: {
       type: Boolean,
-      default: true,
+      default: false,
+    },
+    accountConfirm: {
+      type: Boolean,
+      default: false,
+    },
+    confirmationCode: {
+      type: Number,
+      required: true,
     },
     isAdmin: {
       type: Boolean,

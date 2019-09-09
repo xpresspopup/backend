@@ -10,18 +10,26 @@ export default class userRepository {
   static async getUserByEmail(email) {
     try {
       const result = await userModel.findOne({ email });
-      return result;
+      if (result) {
+        return result;
+      }
     } catch (error) {
-      throw new Error('User not found');
+      throw new Error(error);
     }
   }
 
   static async getActiveUserByEmail(email) {
     try {
-      const result = await userModel.findOne({ email, isActive: true });
-      return result;
+      const result = await userModel.findOne({
+        email,
+        isActive: true,
+        accountConfirm: true,
+      });
+      if (result) {
+        return result;
+      }
     } catch (error) {
-      throw new Error('User not found');
+      throw new Error(error);
     }
   }
 
@@ -34,9 +42,8 @@ export default class userRepository {
       if (result) {
         return result._doc;
       }
-      return false;
     } catch (error) {
-      throw new Error('User not found');
+      throw new Error(error);
     }
   }
 }

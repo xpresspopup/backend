@@ -16,6 +16,14 @@ export default class emailTemplate {
     return html;
   }
 
+  static successfulListingCreated(name) {
+    const html = `
+    <p>Dear ${name} your business listing has being created successfully. It will be approved within few miutes.</p>
+    
+    `;
+    return html;
+  }
+
   static confirmEmail(code) {
     const html = `
     <p>Please use this confirmation code <span style= 'color: orange; font-weight: bold' >${code}</span> to continue your registation </p>

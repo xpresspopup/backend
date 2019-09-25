@@ -21,16 +21,6 @@ export default class User {
         .max(14),
       address: Joi.string().max(255),
       ipAddress: Joi.string(),
-      userType: Joi.string()
-        .required()
-        .equal([
-          'admin',
-          'blueCollar',
-          'whiteCollar',
-          'employer',
-          'client',
-          'vendor',
-        ]),
       title: Joi.string().min(5),
     });
   }
@@ -91,6 +81,21 @@ export default class User {
         .min(2)
         .max(30)
         .required(),
+    });
+  }
+
+  static get validateUserType() {
+    return Joi.object({
+      userType: Joi.string()
+        .required()
+        .equal([
+          'admin',
+          'blueCollar',
+          'whiteCollar',
+          'employer',
+          'client',
+          'vendor',
+        ]),
     });
   }
 }

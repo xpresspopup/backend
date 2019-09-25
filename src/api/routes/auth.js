@@ -2,6 +2,7 @@ import { Router } from 'express';
 import passport from 'passport';
 import upload from '../../services/multerService';
 import authController from '../../controllers/auth';
+import isWhiteCollar from '../middlewares/whiteCollar';
 
 const route = Router();
 
@@ -11,6 +12,11 @@ export default (app) => {
   route.post('/signup', authController.userSignUp);
   route.post('/verify', authController.verifySignUp);
   route.post('/signin', authController.userSignIn);
+  route.put(
+    '/userType',
+    passport.authenticate('jwt', { session: false }),
+    authController.selectUserType,
+  );
   route.get(
     '/',
     passport.authenticate('jwt', { session: false }),
@@ -30,9 +36,17 @@ export default (app) => {
   );
   /** Upload profile picture for user */
   route.put(
-    '/upload',
+    '/uploadAvatar',
     passport.authenticate('jwt', { session: false }),
     upload.any(),
     authController.uploadPicture,
+  );
+  /** Upload profile picture for user */
+  route.put(
+    '/uploadCv',
+    passport.authenticate('jwt', { session: false }),
+    isWhiteCollar,
+    upload.any(),
+    authController.uploadCv,
   );
 };

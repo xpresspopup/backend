@@ -25,7 +25,7 @@ export default class AuthService {
         convert: false,
       });
       if (result.error === null) {
-        const { email, userType } = userInput;
+        const { email } = userInput;
         const existUser = await userRepository.getUserByEmail(email);
         if (existUser) {
           errorHandler.serverResponse(res, 'User already exist', 400);
@@ -40,11 +40,26 @@ export default class AuthService {
           'Confirm your account',
           emailTemplate.confirmEmail(confirmCode),
         );
-        const userDetails = { ...userInput };
-        userDetails.userId = user._id;
-        const whiteCollar = new WhiteCollar(userDetails);
-        const blueCollar = new BlueCollar(userDetails);
-        const employer = new Employer(userDetails);
+        return user;
+      }
+      return errorHandler.validationError(res, result);
+    } catch (e) {
+      LoggerInstance.error(e);
+      throw e;
+    }
+  }
+
+  static async selectUserType({ id, userType }, res) {
+    try {
+      const result = Joi.validate({ userType }, validation.validateUserType, {
+        convert: false,
+      });
+      if (result.error === null) {
+        const userId = id;
+        await userRepository.updateUser({ _id: id }, { userType });
+        const whiteCollar = new WhiteCollar({ userId });
+        const blueCollar = new BlueCollar({ userId });
+        const employer = new Employer({ userId });
         switch (userType) {
           case 'whiteCollar':
             await whiteCollar.save();
@@ -68,7 +83,6 @@ export default class AuthService {
           default:
             break;
         }
-        return user;
       }
       return errorHandler.validationError(res, result);
     } catch (e) {
@@ -117,17 +131,24 @@ export default class AuthService {
         convert: false,
       });
       if (result.error === null) {
-        const user = await userRepository.getActiveUserByEmail(email);
+        const user = await userRepository.getUserByEmail(email);
         if (user) {
-          const isMatch = await user.comparePassword(password);
-          if (isMatch) {
-            const { token, firstname, lastname } = await user.generateToken();
-            return { firstname, lastname, token };
+          if (user.isActive && user.accountConfirm) {
+            const isMatch = await user.comparePassword(password);
+            if (isMatch) {
+              const { token, firstname, lastname } = await user.generateToken();
+              return { firstname, lastname, token };
+            }
+            return errorHandler.serverResponse(
+              res,
+              'Password does not match',
+              400,
+            );
           }
           return errorHandler.serverResponse(
             res,
-            'Password does not match',
-            400,
+            'Account has not yet being verified',
+            404,
           );
         }
         return errorHandler.serverResponse(
@@ -170,10 +191,9 @@ export default class AuthService {
 
   static async uploadPicture(profilePicPath, userValue, res) {
     try {
-      const { url } = await cloud(profilePicPath);
+      const { url } = await cloud.picture(profilePicPath);
       const { email } = userValue;
       if (url) {
-        console.log(email);
         const doc = userRepository.updateUser({ email }, { profilePic: url });
         if (doc) {
           return doc;
@@ -181,6 +201,28 @@ export default class AuthService {
         return false;
       }
       return res.status(400).json('Something went wrong with the image upload');
+    } catch (error) {
+      LoggerInstance.error(error);
+      throw error;
+    }
+  }
+
+  static async uploadCv(cvUrl, userValue, res) {
+    try {
+      if (!cvUrl) {
+        return res.status(400).json('Please upload a file');
+      }
+      const { url } = await cloud.cv(cvUrl);
+      const { _id } = userValue;
+      console.log(url, 'cv url');
+      if (url) {
+        const doc = whiteCollarRepository.updateUser(_id, { cvUrl: url });
+        if (doc) {
+          return { doc, url };
+        }
+        return false;
+      }
+      return res.status(400).json('Something went wrong with the cv upload');
     } catch (error) {
       LoggerInstance.error(error);
       throw error;

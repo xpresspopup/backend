@@ -14,7 +14,7 @@ export default class jobController {
       return res.status(201).json({ message: 'Job created succesfully' });
     } catch (error) {
       LoggerInstance.error(error);
-      throw new Error();
+      throw new Error(error);
     }
   }
 
@@ -25,7 +25,7 @@ export default class jobController {
       return res.status(201).json({ doc, count: doc.length });
     } catch (error) {
       LoggerInstance.error(error);
-      throw new Error();
+      throw new Error(error);
     }
   }
 

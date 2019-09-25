@@ -22,6 +22,19 @@ export default class authController {
     }
   }
 
+  static async selectUserType(req, res) {
+    try {
+      const { id } = req.user;
+      const { userType } = req.body;
+      await authService.selectUserType({ id, userType }, res);
+      return res
+        .status(201)
+        .json({ message: `${userType} updated succesfully` });
+    } catch (error) {
+      LoggerInstance.error(error);
+    }
+  }
+
   static async userSignIn(req, res) {
     try {
       const userData = req.body;
@@ -98,15 +111,17 @@ export default class authController {
     }
   }
 
-  static async verifySignUp(req, res) {
+  static async uploadCv(req, res) {
     try {
-      const { confirmCode, email } = req.body;
-      const result = await authService.verifyRegUser(confirmCode, email, res);
+      const cvUrl = req.files[0].path;
+      const userValue = req.user;
+      const result = await authService.uploadCv(cvUrl, userValue, res);
       if (result) {
         return res
           .status(200)
-          .json({ message: 'User registration completed, Please login' });
+          .json({ message: 'Cv uploaded succesfully', cvUrl: result.url });
       }
+      return false;
     } catch (error) {
       LoggerInstance.error(error);
       throw new Error(error);
@@ -115,6 +130,9 @@ export default class authController {
 
   static async uploadPicture(req, res) {
     try {
+      if (!req.files) {
+        return res.status(400).json('Please upload a file');
+      }
       const profilePic = req.files[0].path;
       const userValue = req.user;
       const result = await authService.uploadPicture(
@@ -125,7 +143,21 @@ export default class authController {
       if (result) {
         return res.status(200).json({ mesage: 'Image uploaded successfully' });
       }
-      return false;
+    } catch (error) {
+      LoggerInstance.error(error);
+      throw new Error(error);
+    }
+  }
+
+  static async verifySignUp(req, res) {
+    try {
+      const { confirmCode, email } = req.body;
+      const result = await authService.verifyRegUser(confirmCode, email, res);
+      if (result) {
+        return res
+          .status(200)
+          .json({ message: 'User registration completed, Please login' });
+      }
     } catch (error) {
       LoggerInstance.error(error);
       throw new Error(error);

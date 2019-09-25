@@ -13,4 +13,9 @@ export default (app) => {
     passport.authenticate('jwt', { session: false }),
     listingController.createListing,
   );
+  route.put(
+    '/approve/:id',
+    passport.authenticate('jwt', { session: false }),
+    listingController.approveListing,
+  );
 };

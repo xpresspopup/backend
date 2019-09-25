@@ -2,6 +2,7 @@ import Joi from 'joi';
 import LoggerInstance from '../loaders/logger';
 import validation from './validations/listing';
 import Listing from '../models/Listing';
+import listingRepository from '../repository/listing';
 import errorHandler from '../helpers/errorHandler';
 import emailService from './emailService2';
 import emailTemplate from '../helpers/emailTemplates';
@@ -47,6 +48,20 @@ export default class ListingService {
     } catch (e) {
       LoggerInstance.error(e);
       throw new Error(e);
+    }
+  }
+
+  static async approveListing(id, res) {
+    try {
+      const result = await listingRepository.updateBusinessListing(
+        { _id: id },
+        { isApproved: true, isValid: true },
+      );
+      if (result) return result;
+      return res.status(400).json({ message: 'Error approving business' });
+    } catch (error) {
+      LoggerInstance.error(error);
+      throw new Error(error);
     }
   }
 }

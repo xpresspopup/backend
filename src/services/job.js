@@ -56,7 +56,7 @@ export default class jobService {
           }
           await emailService.sendText(
             email,
-            'Sucessful Job creation',
+            'Successful Job creation',
             emailTemplate.successfulJobCreated(job),
           );
           return true;

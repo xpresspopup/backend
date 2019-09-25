@@ -16,4 +16,21 @@ export default class Listing {
       throw new Error(error);
     }
   }
+
+  static async approveListing(req, res) {
+    try {
+      const userDetails = req.user;
+      const { id } = req.params;
+      const result = await listingService.approveListing(id, res);
+      if (result) {
+        return res
+          .status(201)
+          .json({ message: 'Business approved successfully' });
+      }
+      throw new Error('Error updating business');
+    } catch (error) {
+      LoggerInstance.error(error);
+      throw new Error(error);
+    }
+  }
 }

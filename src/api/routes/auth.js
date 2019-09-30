@@ -2,7 +2,7 @@ import { Router } from 'express';
 import passport from 'passport';
 import upload from '../../services/multerService';
 import authController from '../../controllers/auth';
-import isWhiteCollar from '../middlewares/whiteCollar';
+import isWhiteCollar from '../middleware/whiteCollar';
 
 const route = Router();
 

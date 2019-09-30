@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import passport from 'passport';
-import isEmployerOrAdmin from '../middlewares/isEmployerOrAdmin';
+import isEmployerOrAdmin from '../middleware/isEmployerOrAdmin';
 import listingController from '../../controllers/listing';
 
 const route = Router();

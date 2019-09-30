@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import passport from 'passport';
-import isAdmin from '../middlewares/isAdmin';
+import isAdmin from '../middleware/isAdmin';
 import categoryController from '../../controllers/category';
 
 const route = Router();

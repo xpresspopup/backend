@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import passport from 'passport';
-import isRecruiter from '../middlewares/isRecruiter';
-import isEmployer from '../middlewares/employer';
-import isEmployerOrAdmin from '../middlewares/isEmployerOrAdmin';
+import isRecruiter from '../middleware/isRecruiter';
+import isEmployer from '../middleware/employer';
+import isEmployerOrAdmin from '../middleware/isEmployerOrAdmin';
 import jobController from '../../controllers/job';
 
 const route = Router();

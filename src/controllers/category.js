@@ -16,4 +16,42 @@ export default class Category {
       throw new Error(error);
     }
   }
+
+  static async getAllCategory(req, res) {
+    try {
+      const userDetails = req.user;
+      const doc = await categoryService.getCategory();
+      return res.status(200).json(doc);
+    } catch (error) {
+      LoggerInstance.error(error);
+      throw new Error(error);
+    }
+  }
+
+  static async updateCategory(req, res) {
+    try {
+      const userDetails = req.user;
+      const { id } = req.params;
+      const { title } = req.body;
+      const doc = await categoryService.updateCategory(title, id);
+      if (doc) return res.status(200).json({ message: 'Update successfully' });
+      throw new Error('error updating category');
+    } catch (error) {
+      LoggerInstance.error(error);
+      throw new Error(error);
+    }
+  }
+
+  static async deleteCategory(req, res) {
+    try {
+      const userDetails = req.user;
+      const { id } = req.params;
+      const doc = await categoryService.deleteCategory(id);
+      if (doc) return res.status(200).json({ message: 'Deleted successfully' });
+      throw new Error('error deleting category');
+    } catch (error) {
+      LoggerInstance.error(error);
+      throw new Error(error);
+    }
+  }
 }

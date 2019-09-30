@@ -21,7 +21,6 @@ export default class listingRepository {
     try {
       const result = await listingModel.findOne({
         _id: id,
-        isValid: true,
       });
       if (result) {
         return result;
@@ -47,35 +46,38 @@ export default class listingRepository {
     }
   }
 
-  // static async getJobsWithinDistance(
-  //   { latitude, longitude },
-  //   searchObject,
-  //   maxDistance,
-  // ) {
-  //   try {
-  //     const job = await jobModel.find({
-  //       $query: {
-  //         isValid: true,
-  //         ...searchObject,
-  //       },
-  //       location: {
-  //         $near: {
-  //           $maxDistance: maxDistance,
-  //           $geometry: {
-  //             type: 'Point',
-  //             coordinates: [longitude, latitude],
-  //           },
-  //         },
-  //       },
-  //     });
-  //     if (job) {
-  //       return job;
-  //     }
-  //     throw new Error('No available job within this region');
-  //   } catch (error) {
-  //     throw new Error(error);
-  //   }
-  // }
+  static async getListingWithinDistance({
+    latitude,
+    longitude,
+    distance,
+    category,
+  }) {
+    console.log(latitude, longitude, distance, category);
+    try {
+      const result = await listingModel.find({
+        $query: {
+          isValid: true,
+          isApproved: true,
+          // category,
+        },
+        location: {
+          $near: {
+            $maxDistance: distance,
+            $geometry: {
+              type: 'Point',
+              coordinates: [longitude, latitude],
+            },
+          },
+        },
+      });
+      if (result) {
+        return result;
+      }
+      throw new Error('No available listing within this region');
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
 
   // static async searchJobsByCategory(category) {
   //   try {

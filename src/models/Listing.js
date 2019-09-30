@@ -21,7 +21,7 @@ const listingSchema = new Schema(
       coordinates: [],
     },
     isApproved: {
-      /** if user has paid for the lisiting  */
+      /** if user has paid for the listing, or admin decides to approve it   */
       type: Boolean,
       default: false,
     },
@@ -36,9 +36,13 @@ const listingSchema = new Schema(
       ref: 'User',
       required: true,
     },
+    updatedBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+    },
   },
   { timestamps: true },
 );
-
+listingSchema.index({ location: '2dsphere' });
 const listing = mongoose.model('Listing', listingSchema);
 export default listing;

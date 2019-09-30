@@ -17,7 +17,7 @@ export default (app) => {
     jobController.postJob,
   );
   /** get all job specifying the job type or all as a query parameter to get all */
-  // ?jobType='all'or jobType='whiteCollar'
+  // ?jobType='all' or jobType='whiteCollar'
   route.get(
     '/',
     passport.authenticate('jwt', { session: false }),

@@ -34,7 +34,8 @@ export default class jobController {
       const jobDetails = req.query;
       const { user } = req;
       const doc = await jobService.jobsWithin(res, jobDetails, user);
-      return res.status(201).json({ doc });
+      if (doc) return res.status(201).json({ doc });
+      return false;
     } catch (error) {
       LoggerInstance.error(error);
       throw new Error(error);

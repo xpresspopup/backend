@@ -5,7 +5,7 @@ let connectionString;
 if (process.env.NODE_ENV === 'test') {
   connectionString = config.databaseURL;
 } else {
-  connectionString = config.databaseURL;
+  connectionString = config.databaseURI;
 }
 export default async () => {
   try {

@@ -8,13 +8,10 @@ const whiteCollarSchema = new Schema(
       type: String,
       maxlength: 500,
     },
-    isVerified: {
-      type: Boolean,
-      default: false,
-    },
     subcriptionType: {
       type: String,
       enum: ['free', 'diamond', 'premium'],
+      default: 'free',
     },
     subscriptionStatus: {
       /** Used to know when a subcription is active or not */
@@ -25,10 +22,8 @@ const whiteCollarSchema = new Schema(
       type: String,
       enum: ['male', 'female', 'prefer not to say'],
     },
-    address: {
+    cvUrl: {
       type: String,
-      lowercase: true,
-      maxlength: 255,
     },
     stateOfOrigin: {
       type: String,
@@ -42,9 +37,13 @@ const whiteCollarSchema = new Schema(
     },
     ageRange: {
       type: String,
+      enum: ['18-21', '22-25', '26-30', '31-35', '36-45', '45 and above'],
+    },
+    dateOfBirth: {
+      type: Date,
     },
 
-    userDetails: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    userId: { type: Schema.Types.ObjectId, ref: 'User' },
     jobsApplied: [{ type: Schema.Types.ObjectId, ref: 'Job' }],
     jobHistory: [{ type: Schema.Types.ObjectId, ref: 'Job' }],
   },

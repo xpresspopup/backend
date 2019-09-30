@@ -16,6 +16,11 @@ export default {
   api: {
     prefix: '/api',
   },
+  cloudinary: {
+    cloudName: process.env.CLOUD_NAME,
+    apikey: process.env.CLOUDINARY_API_KEY,
+    secret: process.env.CLOUDINARY_API_SECRET,
+  },
   agenda: {
     dbCollection: process.env.AGENDA_DB_COLLECTION,
     pooltime: process.env.AGENDA_POOL_TIME,
@@ -25,6 +30,17 @@ export default {
   agendash: {
     user: 'agendash',
     password: '123456',
+  },
+  distance: {
+    premiumDistance: process.env.PREMIUM_DISTANCE,
+    diamondDistance: process.env.DIAMOND_DISTANCE,
+    freeDistance: process.env.FREE_DISTANCE,
+    agentDistance: process.env.AGENT_DISTANCE,
+  },
+  mailGun: {
+    activeApi: process.env.MAILGUN_ACTIVE_API_KEY,
+    domainName: process.env.MAILGUN_DOMAIN,
+    companySendingEmail: process.env.COMPANY_SENDING_EMAIL,
   },
   // paypal: {
   //   publicKey: process.env.PAYPAL_PUBLIC_KEY,

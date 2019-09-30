@@ -4,7 +4,7 @@ const { Schema } = mongoose;
 const invoiceSchema = new Schema(
   {
     reference: {
-      /** Refernce number to be shown across the invoice generated from this schema */
+      /** Refernce number to be thesame with the material request */
       type: String,
       lowercase: true,
       unique: true,
@@ -21,11 +21,6 @@ const invoiceSchema = new Schema(
     },
     isApproved: {
       /** if user pays for the final fee  */
-      type: Boolean,
-      default: false,
-    },
-    isVerified: {
-      /** if collected by the handy men and delivered to the client */
       type: Boolean,
       default: false,
     },

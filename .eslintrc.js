@@ -9,6 +9,8 @@ module.exports = {
 		'linebreak-style': 0,
 		'no-underscore-dangle': 0,
 		'consistent-return': 0,
+		'no-tabs': 0,
+		'no-mixed-spaces-and-tabs': 0,
 	},
 	env: {
 		browser: true,

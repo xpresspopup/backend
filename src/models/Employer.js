@@ -3,10 +3,6 @@ const { Schema } = mongoose;
 
 const employerSchema = new Schema(
   {
-    isVerified: {
-      type: Boolean,
-      default: false,
-    },
     subcriptionType: {
       type: String,
       enum: ['free', 'premium'],
@@ -14,11 +10,6 @@ const employerSchema = new Schema(
     subscriptionStatus: {
       type: Boolean,
       default: false,
-    },
-    phoneNumber: {
-      type: String,
-      minlength: 11,
-      maxlength: 14,
     },
     rcNumber: {
       type: String,
@@ -32,7 +23,7 @@ const employerSchema = new Schema(
     category: {
       type: String,
     },
-    employerDetails: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    userId: { type: Schema.Types.ObjectId, ref: 'User' },
     jobsPosted: [{ type: Schema.Types.ObjectId, ref: 'Job' }],
   },
   { timestamps: true },

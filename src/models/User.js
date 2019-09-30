@@ -17,7 +17,7 @@ const userSchema = new Schema(
       maxlength: 100,
     },
     title: {
-      /** for vendors or employers */
+      /** for vendors or employers  more like company name */
       type: String,
       lowercase: true,
       maxlength: 100,
@@ -35,6 +35,7 @@ const userSchema = new Schema(
       minlength: 5,
     },
     token: {
+      /** change token to array */
       type: String,
       default: '',
     },
@@ -59,12 +60,33 @@ const userSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    accountConfirm: {
+      type: Boolean,
+      default: false,
+    },
+    confirmationCode: {
+      type: Number,
+      required: true,
+    },
     isAdmin: {
       type: Boolean,
+      default: false,
     },
     userType: {
       type: String,
-      enum: ['blueCollar', 'whiteCollar', 'recruiter', 'employer', 'vendor'],
+      enum: [
+        'blueCollar',
+        'whiteCollar',
+        'recruiter',
+        'employer',
+        'vendor',
+        'client',
+        'admin',
+      ],
     },
     profilePic: {
       type: String,
@@ -103,10 +125,13 @@ userSchema.methods.generateToken = async function genToken() {
     const payload = {
       id: this._id,
       email: this.email,
+      title: this.title,
+      firstname: this.firstname,
+      lastname: this.lastname,
       isAdmin: this.isAdmin,
     };
     const token = await jwt.sign(payload, config.secretOrKey);
-    this.token = token;
+    this.token = `Bearer ${token}`;
     const doc = await this.save();
     return doc;
   } catch (error) {

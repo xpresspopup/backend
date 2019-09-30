@@ -3,7 +3,17 @@ import LoggerInstance from '../loaders/logger';
 import validation from './validations/user';
 import errorHandler from '../helpers/errorHandler';
 import User from '../models/User';
+import WhiteCollar from '../models/WhiteCollarUser';
+import BlueCollar from '../models/BlueCollarUser';
+import Employer from '../models/Employer';
 import userRepository from '../repository/auth';
+import employerRepository from '../repository/employer';
+import whiteCollarRepository from '../repository/whiteCollar';
+import blueCollarRepository from '../repository/blueCollar';
+import emailService from './emailService2';
+import emailTemplate from '../helpers/emailTemplates';
+import functions from '../helpers/functions';
+import cloud from './cloudinary';
 export default class AuthService {
   //   constructor ({userRepository, logger}) {
   // this.userRepository = userRepository
@@ -20,11 +30,94 @@ export default class AuthService {
         if (existUser) {
           errorHandler.serverResponse(res, 'User already exist', 400);
         }
-        const user = new User(userInput);
+        const userObject = { ...userInput };
+        const confirmCode = functions.generateConfirmCode();
+        userObject.confirmationCode = confirmCode;
+        const user = new User(userObject);
         await user.save();
-        return { user };
+        await emailService.sendText(
+          email,
+          'Confirm your account',
+          emailTemplate.confirmEmail(confirmCode),
+        );
+        return user;
       }
       return errorHandler.validationError(res, result);
+    } catch (e) {
+      LoggerInstance.error(e);
+      throw e;
+    }
+  }
+
+  static async selectUserType({ id, userType }, res) {
+    try {
+      const result = Joi.validate({ userType }, validation.validateUserType, {
+        convert: false,
+      });
+      if (result.error === null) {
+        const userId = id;
+        await userRepository.updateUser({ _id: id }, { userType });
+        const whiteCollar = new WhiteCollar({ userId });
+        const blueCollar = new BlueCollar({ userId });
+        const employer = new Employer({ userId });
+        switch (userType) {
+          case 'whiteCollar':
+            await whiteCollar.save();
+            break;
+          case 'blueCollar':
+            await blueCollar.save();
+            break;
+          case 'employer':
+            await employer.save();
+            break;
+          case 'client':
+            console.log('jude is an client');
+            break;
+          case 'vendor':
+            console.log('jude is an vendor');
+            break;
+          case 'admin':
+            console.log('jude is an admin');
+            break;
+
+          default:
+            break;
+        }
+      }
+      return errorHandler.validationError(res, result);
+    } catch (e) {
+      LoggerInstance.error(e);
+      throw e;
+    }
+  }
+
+  static async verifyRegUser(confirmCode, email, res) {
+    try {
+      const doc = await userRepository.getUserByEmail(email);
+      if (doc) {
+        const confirmationCode =					!Number.isNaN(confirmCode) && String(confirmCode).trim().length === 6
+					  ? parseInt(confirmCode, 10)
+					  : 'Invalid activation code';
+        if (doc.confirmationCode !== confirmationCode) {
+          return errorHandler.serverResponse(
+            res,
+            'Invalid confirmation code',
+            400,
+          );
+        }
+        const rslt = await userRepository.updateUser(
+          { email, accountConfirm: false },
+          { accountConfirm: true, isActive: true },
+        );
+        if (rslt) {
+          await emailService.sendText(
+            email,
+            'Welcome to Pop Express',
+            emailTemplate.registrationEmail(),
+          );
+        }
+        return true;
+      }
     } catch (e) {
       LoggerInstance.error(e);
       throw e;
@@ -40,15 +133,22 @@ export default class AuthService {
       if (result.error === null) {
         const user = await userRepository.getUserByEmail(email);
         if (user) {
-          const isMatch = await user.comparePassword(password);
-          if (isMatch) {
-            const { token, firstname, lastname } = await user.generateToken();
-            return { firstname, lastname, token };
+          if (user.isActive && user.accountConfirm) {
+            const isMatch = await user.comparePassword(password);
+            if (isMatch) {
+              const { token, firstname, lastname } = await user.generateToken();
+              return { firstname, lastname, token };
+            }
+            return errorHandler.serverResponse(
+              res,
+              'Password does not match',
+              400,
+            );
           }
           return errorHandler.serverResponse(
             res,
-            'Password does not match',
-            400,
+            'Account has not yet being verified',
+            404,
           );
         }
         return errorHandler.serverResponse(
@@ -86,6 +186,90 @@ export default class AuthService {
     } catch (e) {
       LoggerInstance.error(e);
       throw e;
+    }
+  }
+
+  static async uploadPicture(profilePicPath, userValue, res) {
+    try {
+      const { url } = await cloud.picture(profilePicPath);
+      const { email } = userValue;
+      if (url) {
+        const doc = userRepository.updateUser({ email }, { profilePic: url });
+        if (doc) {
+          return doc;
+        }
+        return false;
+      }
+      return res.status(400).json('Something went wrong with the image upload');
+    } catch (error) {
+      LoggerInstance.error(error);
+      throw error;
+    }
+  }
+
+  static async uploadCv(cvUrl, userValue, res) {
+    try {
+      if (!cvUrl) {
+        return res.status(400).json('Please upload a file');
+      }
+      const { url } = await cloud.cv(cvUrl);
+      const { _id } = userValue;
+      console.log(url, 'cv url');
+      if (url) {
+        const doc = whiteCollarRepository.updateUser(_id, { cvUrl: url });
+        if (doc) {
+          return { doc, url };
+        }
+        return false;
+      }
+      return res.status(400).json('Something went wrong with the cv upload');
+    } catch (error) {
+      LoggerInstance.error(error);
+      throw error;
+    }
+  }
+
+  static async updateUserProfile(userDetails, res, userValue) {
+    try {
+      const result = Joi.validate(userDetails, validation.userUpdateSchema, {
+        convert: false,
+      });
+      if (result.error === null) {
+        const data = { ...userDetails };
+        const { _id, userType } = userValue;
+        switch (userType) {
+          case 'whiteCollar':
+            await whiteCollarRepository.updateUser(_id, userDetails);
+            break;
+          case 'blueCollar':
+            blueCollarRepository.updateUser(_id, userDetails);
+            break;
+          case 'employer':
+            employerRepository.updateUser(_id, userDetails);
+            break;
+          case 'client':
+            console.log('jude is an client');
+            break;
+          case 'vendor':
+            console.log('jude is an vendor');
+            break;
+          case 'admin':
+            console.log('jude is an admin');
+            break;
+
+          default:
+            break;
+        }
+        const searchFields = { _id };
+        const doc = await userRepository.updateUser(searchFields, data);
+        if (doc) {
+          return doc;
+        }
+      }
+      return errorHandler.validationError(res, result);
+    } catch (error) {
+      LoggerInstance.error(error);
+      throw error;
     }
   }
 }

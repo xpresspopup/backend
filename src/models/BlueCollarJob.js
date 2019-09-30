@@ -4,6 +4,10 @@ const { Schema } = mongoose;
 
 const blueCollarJobSchema = new Schema(
   {
+    jobStatus: {
+      type: String,
+      enum: ['approved', 'accepted', 'ongoing', 'completed'],
+    },
     isAccepted: {
       /** when the blue collar peron accepts the job */
       type: Boolean,
@@ -13,15 +17,7 @@ const blueCollarJobSchema = new Schema(
       /** time the blue collar accepts the job */
       type: Date,
     },
-    isApproved: {
-      /** when the client agrees to get materials */
-      type: Boolean,
-      default: false,
-    },
-    aprovedTime: {
-      /** time the client accepts the job */
-      type: Date,
-    },
+
     isPaid: {
       /** when the client paid for the material */
       type: Boolean,
@@ -32,7 +28,7 @@ const blueCollarJobSchema = new Schema(
       type: Date,
     },
     isCompleted: {
-      /** when the client agrees to get materials */
+      /** when the handyman closes / finishes the job */
       type: Boolean,
       default: false,
     },
@@ -43,20 +39,7 @@ const blueCollarJobSchema = new Schema(
     clientSignature: {
       type: String,
     },
-    isValid: {
-      /** it is valid as long as the admin say so or until after 5 dayss */
-      type: Boolean,
-      default: false,
-    },
-    dueDate: {
-      /** due date is set by the client or 5days after posting */
-      type: Date,
-    },
-    postedDate: {
-      /** Day it is posted it becomes the posted date until after 5days it becomes invalid */
-      type: Date,
-    },
-    jobDetails: {
+    jobId: {
       type: Schema.Types.ObjectId,
       ref: 'Job',
       required: true,

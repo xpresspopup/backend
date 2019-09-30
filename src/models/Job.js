@@ -16,29 +16,42 @@ const jobSchema = new Schema(
       maxlength: 100,
     },
     reference: {
-      /** Auto generated when job is created feom this schema */
       type: String,
-      lowercase: true,
-      unique: true,
+    },
+    isApproved: {
+      /** when the admin approves the job posting */
+      type: Boolean,
+      default: true,
+    },
+    isValid: {
+      /** if its approved and within due date */
+      type: Boolean,
+      default: true,
+    },
+    dueDate: {
+      /** due date is set by the client or 5days after posting for blueCollar 20 days after for whiteCollar */
+      type: Date,
+    },
+    postedDate: {
+      /** Day it is approved */
+      type: Date,
+    },
+    jobType: {
+      type: String,
+      enum: ['whiteCollar', 'blueCollar'],
     },
     description: {
       /** for white collar jobs its job description , while for blue collar jobs its client's brief */
       type: String,
       lowercase: true,
     },
-    jobType: {
-      type: String,
-      enum: ['whiteCollar', 'blueCollar'],
-    },
     address: {
       type: String,
       lowercase: true,
     },
-    latitude: {
-      type: Number,
-    },
-    longitude: {
-      type: Number,
+    location: {
+      type: { type: String },
+      coordinates: [],
     },
     created_by: {
       type: Schema.Types.ObjectId,
@@ -48,6 +61,25 @@ const jobSchema = new Schema(
   },
   { timestamps: true },
 );
-
+jobSchema.pre('save', async function genRef(next) {
+  try {
+    let result = '';
+    const myNumber = parseInt(Math.random() * 1000000000, 10);
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const charactersLength = characters.length;
+    characters.split('').forEach((element, i) => {
+      if (i < 2) {
+        result += characters.charAt(
+          Math.floor(Math.random() * charactersLength),
+        );
+      }
+    });
+    this.reference = `${result}/${myNumber}`;
+    next();
+  } catch (error) {
+    return next(error);
+  }
+});
+jobSchema.index({ location: '2dsphere' });
 const Job = mongoose.model('Job', jobSchema);
 export default Job;

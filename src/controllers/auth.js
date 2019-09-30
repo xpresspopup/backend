@@ -1,3 +1,4 @@
+/* eslint-disable no-tabs */
 import authService from '../services/auth';
 import LoggerInstance from '../loaders/logger';
 export default class authController {
@@ -9,8 +10,26 @@ export default class authController {
   static async userSignUp(req, res) {
     try {
       const userData = req.body;
+      const ipAddress =				(req.headers['x-forwarded-for'] || '').split(',').pop()
+				|| req.connection.remoteAddress
+				|| req.socket.remoteAddress
+				|| req.connection.socket.remoteAddress;
+      userData.ipAddress = ipAddress;
       await authService.addUser(userData, res);
       return res.status(201).json({ message: 'User registered succesfully' });
+    } catch (error) {
+      LoggerInstance.error(error);
+    }
+  }
+
+  static async selectUserType(req, res) {
+    try {
+      const { id } = req.user;
+      const { userType } = req.body;
+      await authService.selectUserType({ id, userType }, res);
+      return res
+        .status(201)
+        .json({ message: `${userType} updated succesfully` });
     } catch (error) {
       LoggerInstance.error(error);
     }
@@ -51,5 +70,97 @@ export default class authController {
       });
     }
     return LoggerInstance.error('Unable to logout');
+  }
+
+  static async updateUser(req, res) {
+    try {
+      const userDetails = req.body;
+      const userValue = req.user;
+      const result = await authService.updateUserProfile(
+        userDetails,
+        res,
+        userValue,
+      );
+      if (result) {
+        return res.status(200).json({ message: 'User updated successfully' });
+      }
+    } catch (error) {
+      LoggerInstance.error(error);
+      throw new Error(error);
+    }
+  }
+
+  static async updateProfilePicture(req, res) {
+    try {
+      const profilePic = req.files[0].path;
+      const userValue = req.user;
+      const result = await authService.uploadPicture(
+        profilePic,
+        userValue,
+        res,
+      );
+      if (result) {
+        return res
+          .status(200)
+          .json({ message: 'profile picture uploaded succesfully' });
+      }
+      return false;
+    } catch (error) {
+      LoggerInstance.error(error);
+      throw new Error(error);
+    }
+  }
+
+  static async uploadCv(req, res) {
+    try {
+      const cvUrl = req.files[0].path;
+      const userValue = req.user;
+      const result = await authService.uploadCv(cvUrl, userValue, res);
+      if (result) {
+        return res
+          .status(200)
+          .json({ message: 'Cv uploaded succesfully', cvUrl: result.url });
+      }
+      return false;
+    } catch (error) {
+      LoggerInstance.error(error);
+      throw new Error(error);
+    }
+  }
+
+  static async uploadPicture(req, res) {
+    try {
+      if (!req.files) {
+        return res.status(400).json('Please upload a file');
+      }
+      const profilePic = req.files[0].path;
+      const userValue = req.user;
+      const result = await authService.uploadPicture(
+        profilePic,
+        userValue,
+        res,
+      );
+      if (result) {
+        return res.status(200).json({ mesage: 'Image uploaded successfully' });
+      }
+    } catch (error) {
+      LoggerInstance.error(error);
+      throw new Error(error);
+    }
+  }
+
+  static async verifySignUp(req, res) {
+    try {
+      const { confirmCode, email } = req.body;
+      const result = await authService.verifyRegUser(confirmCode, email, res);
+      if (result) {
+        return res
+          .status(200)
+          .json({ message: 'User registration completed, Please login' });
+      }
+    } catch (error) {
+      LoggerInstance.error(error);
+      throw new Error(error);
+    }
   }
 }

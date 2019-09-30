@@ -4,3 +4,7 @@ npm-debug.log
 .env
 files
 build
+src/jude.js
+src/jude.html
+details.txt
+files

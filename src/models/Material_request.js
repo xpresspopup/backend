@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import uuid from 'uuid';
 const { Schema } = mongoose;
 
 const materialRequestSchema = new Schema(
@@ -11,14 +12,10 @@ const materialRequestSchema = new Schema(
     },
     reference: {
       type: String,
-      lowercase: true,
       unique: true,
     },
-    category: {
-      type: String,
-      lowercase: true,
-    },
     isApproved: {
+      /** if client approves the purchase of the material */
       type: Boolean,
       default: false,
     },
@@ -33,10 +30,6 @@ const materialRequestSchema = new Schema(
     isValid: {
       type: Boolean,
       default: false,
-    },
-    jobType: {
-      type: String,
-      enum: ['whiteCollar', 'blueCollar'],
     },
     job: {
       type: Schema.Types.ObjectId,
@@ -61,7 +54,24 @@ const materialRequestSchema = new Schema(
   },
   { timestamps: true },
 );
-
+materialRequestSchema.pre('save', async function hashPassword(next) {
+  try {
+    if (this.isModified('reference')) {
+      const date = new Date();
+      const day = date.getDate();
+      const month = date.getMonth() + 1;
+      const year = date.getFullYear();
+      const referenceId = uuid.v4();
+      const joined = `${year}${month}${day}`;
+      this.reference = `${joined}/${referenceId}`;
+      next();
+    } else {
+      next();
+    }
+  } catch (error) {
+    return next(error);
+  }
+});
 const materialRequest = mongoose.model(
   'Material_Request',
   materialRequestSchema,

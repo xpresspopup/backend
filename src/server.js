@@ -1,8 +1,14 @@
 import express from 'express';
+import '@babel/polyfill/noConflict';
 import loaders from './loaders';
 
 const startServer = async () => {
   const app = express();
+  app.use(
+    express.static(
+      'https://app.swaggerhub.com/apis-docs/BucketList/bucket-list/1.0.0',
+    ),
+  );
   app.use('/uploads', express.static('uploads'));
   await loaders(app);
 

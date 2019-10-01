@@ -4,7 +4,6 @@ import morgan from 'morgan';
 import passport from 'passport';
 import routes from '../api';
 import config from '../config';
-import '@babel/polyfill/noConflict';
 import passportFunction from './passport';
 export default async (app) => {
   app.use(cors());

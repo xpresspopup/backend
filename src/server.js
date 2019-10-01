@@ -4,7 +4,7 @@ import loaders from './loaders';
 
 const startServer = async () => {
   const app = express();
-  app.use(express.static('./index.html'));
+  app.use(express.static('./helpers/index.html'));
   app.use('/uploads', express.static('uploads'));
   await loaders(app);
 

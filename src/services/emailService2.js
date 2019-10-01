@@ -1,8 +1,8 @@
 import nodemailer from 'nodemailer';
+import smtpTransport from 'nodemailer-smtp-transport';
 import config from '../config';
 
-
-const transportOptions = {
+const transportOptions = smtpTransport({
   service: 'gmail',
   secure: false,
   port: 25,
@@ -13,7 +13,7 @@ const transportOptions = {
   tls: {
     rejectUnauthorized: false,
   },
-};
+});
 class EmailService {
   constructor() {
     this.emailClient = nodemailer.createTransport(transportOptions);

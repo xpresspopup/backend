@@ -6,6 +6,9 @@ const startServer = async () => {
   const app = express();
   app.use(express.static('./helpers/index.html'));
   app.use('/uploads', express.static('uploads'));
+  app.get('/', (req, res) => {
+    res.send('An alligator approaches!');
+  });
   await loaders(app);
 
   const PORT = process.env.PORT || 5555;

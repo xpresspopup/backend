@@ -51,4 +51,18 @@ export default class functions {
   static generateConfirmCode() {
     return Math.floor(100000 + Math.random() * 900000);
   }
+
+  static jobSearch(userType, category) {
+    let searchObject = {};
+    if (category) {
+      searchObject = {
+        jobType: userType,
+        category,
+      };
+    }
+    searchObject = {
+      jobType: userType,
+    };
+    return searchObject;
+  }
 }

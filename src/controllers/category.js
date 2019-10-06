@@ -33,6 +33,10 @@ export default class Category {
       const userDetails = req.user;
       const { id } = req.params;
       const { title } = req.body;
+      if (id === '' || id.trim().length !== 24) {
+        throw new Error('Invalid id number');
+      }
+
       const doc = await categoryService.updateCategory(title, id);
       if (doc) return res.status(200).json({ message: 'Update successfully' });
       throw new Error('error updating category');
@@ -46,6 +50,9 @@ export default class Category {
     try {
       const userDetails = req.user;
       const { id } = req.params;
+      if (id === '' || id.trim().length !== 24) {
+        throw new Error('Invalid id number');
+      }
       const doc = await categoryService.deleteCategory(id);
       if (doc) return res.status(200).json({ message: 'Deleted successfully' });
       throw new Error('error deleting category');

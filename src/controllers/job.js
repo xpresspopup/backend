@@ -57,6 +57,18 @@ export default class jobController {
     try {
       const { id } = req.params;
       const doc = await jobService.jobById(res, id);
+      if (doc) return res.status(200).json(doc);
+      throw new Error('Error getting jobs');
+    } catch (error) {
+      LoggerInstance.error(error);
+      throw new Error(error);
+    }
+  }
+
+  static async updateJobById(req, res) {
+    try {
+      const { id } = req.params;
+      const doc = await jobService.jobUpdateById(res, id);
       return res.status(200).json(doc);
     } catch (error) {
       LoggerInstance.error(error);

@@ -9,12 +9,7 @@ const jobSchema = new Schema(
       required: true,
       maxlength: 100,
     },
-    category: {
-      type: String,
-      lowercase: true,
-      required: true,
-      maxlength: 100,
-    },
+    category: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
     reference: {
       type: String,
     },

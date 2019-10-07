@@ -22,6 +22,10 @@ export default class User {
       address: Joi.string().max(255),
       ipAddress: Joi.string(),
       title: Joi.string().min(5),
+      isAdmin: Joi.equal([true, false]),
+      accountConfirm: Joi.equal([true, false]),
+      isActive: Joi.equal([true, false]),
+      isVerified: Joi.equal([true, false]),
     });
   }
 
@@ -93,7 +97,7 @@ export default class User {
           'blueCollar',
           'whiteCollar',
           'employer',
-          'client',
+          'businessOwner',
           'vendor',
         ]),
     });

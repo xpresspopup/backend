@@ -1,4 +1,5 @@
 import listingModel from '../models/Listing';
+import listingUser from '../models/ListingUser';
 export default class listingRepository {
   // constructor({ userModel, jobModel, logger }) {
   //   // this.userModel = userModel;
@@ -40,7 +41,9 @@ export default class listingRepository {
       if (result) {
         return result;
       }
-      throw new Error('Business not found');
+      throw new Error(
+        'Business not found or not same user created this catalogue',
+      );
     } catch (error) {
       throw new Error(error);
     }
@@ -74,6 +77,21 @@ export default class listingRepository {
         return result;
       }
       throw new Error('No available listing within this region');
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  static async updateListingUser(searchObject, updateObject) {
+    try {
+      const result = await listingUser.findOneAndUpdate(
+        searchObject,
+        updateObject,
+      );
+      if (result) {
+        return result;
+      }
+      throw new Error('Listing User not found');
     } catch (error) {
       throw new Error(error);
     }

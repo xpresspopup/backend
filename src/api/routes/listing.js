@@ -36,6 +36,11 @@ export default (app) => {
     passport.authenticate('jwt', { session: false }),
     listingController.getListingById,
   );
+  route.put(
+    '/updateCatalogue/:id',
+    passport.authenticate('jwt', { session: false }),
+    listingController.updateCatalogue,
+  );
   route.get(
     '/approve/:id',
     passport.authenticate('jwt', { session: false }),

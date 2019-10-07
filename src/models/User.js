@@ -84,7 +84,7 @@ const userSchema = new Schema(
         'recruiter',
         'employer',
         'vendor',
-        'client',
+        'businessOwner',
         'admin',
       ],
     },

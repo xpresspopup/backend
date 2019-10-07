@@ -11,7 +11,7 @@ const listingSchema = new Schema(
       type: String,
       lowercase: true,
     },
-    pictures: [],
+    pictures: { type: String },
     address: {
       type: String,
       lowercase: true,
@@ -31,6 +31,7 @@ const listingSchema = new Schema(
       default: false,
     },
     category: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
+    catalogue: [{ type: Schema.Types.ObjectId, ref: 'Catalogue' }],
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: 'User',

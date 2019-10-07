@@ -11,7 +11,7 @@ export default class jobController {
       const jobData = req.body;
       const userDetails = req.user;
       await jobService.addJob(jobData, userDetails, res);
-      return res.status(201).json({ message: 'Job created succesfully' });
+      return res.status(201).json({ message: 'Job created successfully' });
     } catch (error) {
       LoggerInstance.error(error);
       throw new Error(error);
@@ -68,8 +68,9 @@ export default class jobController {
   static async updateJobById(req, res) {
     try {
       const { id } = req.params;
-      const doc = await jobService.jobUpdateById(res, id);
-      return res.status(200).json(doc);
+      const data = req.body;
+      const doc = await jobService.jobUpdateById(res, id, data);
+      return res.status(200).json({ message: 'Update successfully' });
     } catch (error) {
       LoggerInstance.error(error);
       throw new Error(error);

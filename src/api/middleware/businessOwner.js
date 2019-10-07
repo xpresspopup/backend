@@ -1,5 +1,5 @@
-const client = (req, res, next) => {
-  if (req.user.userType === 'client') {
+const businessOwner = (req, res, next) => {
+  if (req.user.userType === 'businessOwner') {
     return next();
   }
   return res.status(401).json({
@@ -7,4 +7,4 @@ const client = (req, res, next) => {
     message: 'You cannot make this call',
   });
 };
-export default client;
+export default businessOwner;

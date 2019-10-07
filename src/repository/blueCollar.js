@@ -44,11 +44,11 @@ export default class blueColarRepository {
         .findOne({
           jobId: id,
         })
-        .populate('Job');
+        .populate('jobId');
       if (result) {
         return result;
       }
-      throw new Error('Job not found');
+      throw new Error('Blue collar job not found');
     } catch (error) {
       throw new Error(error);
     }
@@ -58,6 +58,21 @@ export default class blueColarRepository {
     try {
       const result = await blueCollarModel.findOneAndUpdate(
         { userId },
+        fieldsToUpdate,
+      );
+      if (result) {
+        return result._doc;
+      }
+      throw new Error('User not found');
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  static async updateBlueCollarJob(jobId, fieldsToUpdate) {
+    try {
+      const result = await blueCollarJob.findOneAndUpdate(
+        { jobId },
         fieldsToUpdate,
       );
       if (result) {

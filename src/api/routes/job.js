@@ -21,7 +21,7 @@ export default (app) => {
   route.get(
     '/',
     passport.authenticate('jwt', { session: false }),
-    isEmployerOrAdmin,
+    // isEmployerOrAdmin,
     jobController.getJob,
   );
   /** all jobs within a 20km radius passing lat and long */
@@ -38,11 +38,11 @@ export default (app) => {
     passport.authenticate('jwt', { session: false }),
     jobController.getJobById,
   );
-  /** Update Single job by id */
+  /** Update Single job by id, updates any field from white collar job and blue collar job */
   route.put(
     '/:id',
     passport.authenticate('jwt', { session: false }),
-    // isEmployerOrAdmin,
+    isEmployerOrAdmin,
     jobController.updateJobById,
   );
 };

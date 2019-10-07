@@ -18,11 +18,10 @@ const employerSchema = new Schema(
     location: {
       type: String,
       lowercase: true,
-      maxlength: 50,
+      maxlength: 100,
     },
-    category: {
-      type: String,
-    },
+    category: { type: Schema.Types.ObjectId, ref: 'Category' },
+
     userId: { type: Schema.Types.ObjectId, ref: 'User' },
     jobsPosted: [{ type: Schema.Types.ObjectId, ref: 'Job' }],
   },

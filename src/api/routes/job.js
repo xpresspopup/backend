@@ -38,4 +38,11 @@ export default (app) => {
     passport.authenticate('jwt', { session: false }),
     jobController.getJobById,
   );
+  /** Update Single job by id */
+  route.put(
+    '/:id',
+    passport.authenticate('jwt', { session: false }),
+    // isEmployerOrAdmin,
+    jobController.updateJobById,
+  );
 };

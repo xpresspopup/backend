@@ -96,19 +96,16 @@ export default class jobService {
   static async jobsWithin(res, jobDetails, user) {
     try {
       const { userType, _id } = user;
+      const { category } = jobDetails;
       let maxDistance;
       let searchObject = {};
       switch (userType) {
         case 'whiteCollar':
-          searchObject = {
-            jobType: userType,
-          };
+          searchObject = functions.jobSearch(userType, category);
           maxDistance = await functions.calculateDistance('whiteCollar', _id);
           break;
         case 'blueCollar':
-          searchObject = {
-            jobType: userType,
-          };
+          searchObject = functions.jobSearch(userType, category);
           maxDistance = await functions.calculateDistance('blueCollar', _id);
           break;
         case 'employer':
@@ -146,7 +143,7 @@ export default class jobService {
 
   static async jobById(res, id) {
     try {
-      if (id === '') {
+      if (id === '' || id.trim().length !== 24) {
         return errorHandler.serverResponse(res, 'invalid id passed', 400);
       }
       const job = await jobRepository.findJobsById(id);
@@ -154,11 +151,37 @@ export default class jobService {
         let result;
         switch (job.jobType) {
           case 'blueCollar':
-            console.log('blue collar');
             result = await blueCollarRepository.getBlueCollarJobById(id);
             break;
           case 'whiteCollar':
-            console.log('white collar');
+            result = await whiteCollarRepository.getWhiteCollarJobById(id);
+            break;
+          default:
+            break;
+        }
+
+        return result;
+      }
+      return false;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  static async jobUpdateById(res, id) {
+    try {
+      // not updated yet
+      if (id === '' || id.trim().length !== 24) {
+        return errorHandler.serverResponse(res, 'invalid id passed', 400);
+      }
+      const job = await jobRepository.JobsById(id);
+      if (job) {
+        let result;
+        switch (job.jobType) {
+          case 'blueCollar':
+            result = await blueCollarRepository.getBlueCollarJobById(id);
+            break;
+          case 'whiteCollar':
             result = await whiteCollarRepository.getWhiteCollarJobById(id);
             break;
           default:

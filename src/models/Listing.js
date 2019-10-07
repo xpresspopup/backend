@@ -30,7 +30,7 @@ const listingSchema = new Schema(
       type: Boolean,
       default: false,
     },
-    category: { type: Schema.Types.ObjectId, ref: 'Category' },
+    category: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: 'User',

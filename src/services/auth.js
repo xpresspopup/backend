@@ -4,6 +4,7 @@ import validation from './validations/user';
 import errorHandler from '../helpers/errorHandler';
 import User from '../models/User';
 import WhiteCollar from '../models/WhiteCollarUser';
+import ListingUser from '../models/ListingUser';
 import BlueCollar from '../models/BlueCollarUser';
 import Employer from '../models/Employer';
 import userRepository from '../repository/auth';
@@ -60,6 +61,7 @@ export default class AuthService {
         const whiteCollar = new WhiteCollar({ userId });
         const blueCollar = new BlueCollar({ userId });
         const employer = new Employer({ userId });
+        const listingUser = new ListingUser({ userId });
         switch (userType) {
           case 'whiteCollar':
             await whiteCollar.save();
@@ -70,8 +72,8 @@ export default class AuthService {
           case 'employer':
             await employer.save();
             break;
-          case 'client':
-            console.log('jude is an client');
+          case 'businessOwner':
+            await listingUser.save();
             break;
           case 'vendor':
             console.log('jude is an vendor');
@@ -83,6 +85,7 @@ export default class AuthService {
           default:
             break;
         }
+        return true;
       }
       return errorHandler.validationError(res, result);
     } catch (e) {

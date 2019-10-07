@@ -31,6 +31,26 @@ export default class Listing {
     }
   }
 
+  static async updateCatalogue(req, res) {
+    try {
+      const { catalogue } = req.body;
+      const userDetails = req.user;
+      const { id } = req.params;
+      await listingService.updateListingCatalogue(
+        catalogue,
+        userDetails,
+        id,
+        res,
+      );
+      return res
+        .status(201)
+        .json({ message: 'Listing Catalogue updated successfully' });
+    } catch (error) {
+      LoggerInstance.error(error);
+      throw new Error(error);
+    }
+  }
+
   static async approveListing(req, res) {
     try {
       const { id } = req.params;

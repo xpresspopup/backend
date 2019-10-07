@@ -10,13 +10,20 @@ export default class authController {
   static async userSignUp(req, res) {
     try {
       const userData = req.body;
+      const { admin } = req.query;
       const ipAddress =				(req.headers['x-forwarded-for'] || '').split(',').pop()
 				|| req.connection.remoteAddress
 				|| req.socket.remoteAddress
 				|| req.connection.socket.remoteAddress;
       userData.ipAddress = ipAddress;
+      if (admin === true || admin === 'true') {
+        userData.isAdmin = true;
+        userData.accountConfirm = true;
+        userData.isActive = true;
+        userData.isVerified = true;
+      }
       await authService.addUser(userData, res);
-      return res.status(201).json({ message: 'User registered succesfully' });
+      return res.status(201).json({ message: 'User registered successfully' });
     } catch (error) {
       LoggerInstance.error(error);
     }
@@ -24,12 +31,12 @@ export default class authController {
 
   static async selectUserType(req, res) {
     try {
-      const { id } = req.user;
+      const { id, email } = req.user;
       const { userType } = req.body;
       await authService.selectUserType({ id, userType }, res);
-      return res
-        .status(201)
-        .json({ message: `${userType} updated succesfully` });
+      return res.status(201).json({
+        message: `Account with email ${email} has being updated to ${userType} successfully`,
+      });
     } catch (error) {
       LoggerInstance.error(error);
     }

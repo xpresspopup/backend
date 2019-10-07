@@ -52,7 +52,7 @@ export default class whiteCollarRepository {
       if (result) {
         return result;
       }
-      throw new Error('Job not found');
+      throw new Error('White collar Job not found');
     } catch (error) {
       throw new Error(error);
     }
@@ -68,6 +68,22 @@ export default class whiteCollarRepository {
         return result._doc;
       }
       throw new Error('User not found');
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  static async updateWhiteCollarJob(jobId, fieldsToUpdate) {
+    try {
+      console.log(jobId);
+      const result = await whiteCollarJob.findOneAndUpdate(
+        { jobId },
+        fieldsToUpdate,
+      );
+      if (result) {
+        return result._doc;
+      }
+      throw new Error('Job not found');
     } catch (error) {
       throw new Error(error);
     }

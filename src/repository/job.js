@@ -68,12 +68,28 @@ export default class jobRepository {
     try {
       const job = await jobModel.findOne({
         _id: id,
-        isValid: true,
       });
       if (job) {
         return job;
       }
       throw new Error('No job with this category');
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+
+  static async updateJobsById(id, fieldsToUpdate) {
+    try {
+      const job = await jobModel.findOneAndUpdate(
+        {
+          _id: id,
+        },
+        fieldsToUpdate,
+      );
+      if (job) {
+        return job;
+      }
+      throw new Error('No job to update');
     } catch (error) {
       throw new Error(error);
     }

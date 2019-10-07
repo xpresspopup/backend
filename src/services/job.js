@@ -147,8 +147,8 @@ export default class jobService {
         return errorHandler.serverResponse(res, 'invalid id passed', 400);
       }
       const job = await jobRepository.findJobsById(id);
+      let result;
       if (job) {
-        let result;
         switch (job.jobType) {
           case 'blueCollar':
             result = await blueCollarRepository.getBlueCollarJobById(id);
@@ -159,38 +159,54 @@ export default class jobService {
           default:
             break;
         }
-
-        return result;
       }
-      return false;
+      return result;
     } catch (error) {
       throw new Error(error);
     }
   }
 
-  static async jobUpdateById(res, id) {
+  static async jobUpdateById(res, id, data) {
     try {
-      // not updated yet
       if (id === '' || id.trim().length !== 24) {
         return errorHandler.serverResponse(res, 'invalid id passed', 400);
       }
-      const job = await jobRepository.JobsById(id);
+      const job = await jobRepository.findJobsById(id);
+      const { jobType, _id } = job;
+      const { latitude, longitude } = data;
+      let result;
       if (job) {
-        let result;
-        switch (job.jobType) {
+        if (!latitude || !longitude) {
+          await jobRepository.updateJobsById(id, {
+            ...data,
+          });
+        } else {
+          await jobRepository.updateJobsById(id, {
+            ...data,
+            $set: {
+              'location.coordinates': [
+                parseFloat(longitude, 10),
+                parseFloat(latitude, 10),
+              ],
+            },
+          });
+        }
+        switch (jobType) {
           case 'blueCollar':
-            result = await blueCollarRepository.getBlueCollarJobById(id);
+            result = await blueCollarRepository.updateBlueCollarJob(_id, {
+              ...data,
+            });
             break;
           case 'whiteCollar':
-            result = await whiteCollarRepository.getWhiteCollarJobById(id);
+            result = await whiteCollarRepository.updateWhiteCollarJob(_id, {
+              ...data,
+            });
             break;
           default:
             break;
         }
-
-        return result;
       }
-      return false;
+      return result;
     } catch (error) {
       throw new Error(error);
     }

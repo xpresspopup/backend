@@ -2,6 +2,7 @@ import Joi from 'joi';
 import LoggerInstance from '../loaders/logger';
 import validation from './validations/listing';
 import Listing from '../models/Listing';
+import ListingUser from '../models/ListingUser';
 import listingRepository from '../repository/listing';
 import errorHandler from '../helpers/errorHandler';
 import emailService from './emailService2';
@@ -42,6 +43,12 @@ export default class ListingService {
           'Business listing created, awaiting approval',
           emailTemplate.successfulListingCreated(customerName),
         );
+        const updateObj = {
+          $push: {
+            listingPosted: listing._id,
+          },
+        };
+        await listingRepository.updateListingUser({ userId: id }, updateObj);
         return true;
       }
       return errorHandler.validationError(res, result);
@@ -80,6 +87,40 @@ export default class ListingService {
       LoggerInstance.error(e);
       throw new Error(e);
     }
+  }
+
+  static async updateListingCatalogue(catalogue, userDetails, listingId, res) {
+    try {
+      const { id } = userDetails;
+      if (listingId === '' || listingId.trim().length !== 24) {
+        throw new Error('Invalid id number');
+      } else {
+        const doc = await listingRepository.updateBusinessListing(
+          { _id: listingId },
+          this.updateCatalogue(catalogue),
+        );
+        if (doc) return doc;
+        return res.status(400).json({ message: 'Error updating business' });
+      }
+    } catch (e) {
+      LoggerInstance.error(e);
+      throw new Error(e);
+    }
+  }
+
+  static updateCatalogue(catalogue) {
+    if (typeof catalogue === 'string') {
+      return {
+        $push: {
+          catalogue,
+        },
+      };
+    }
+    return {
+      $push: {
+        catalogue: { $each: catalogue },
+      },
+    };
   }
 
   static async approveListing(id, res) {

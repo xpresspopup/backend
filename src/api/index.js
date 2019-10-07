@@ -3,6 +3,7 @@ import auth from './routes/auth';
 import job from './routes/job';
 import listing from './routes/listing';
 import category from './routes/category';
+import catalogue from './routes/catalogue';
 
 // guaranteed to get dependencies
 export default () => {
@@ -11,6 +12,7 @@ export default () => {
   job(app);
   listing(app);
   category(app);
+  catalogue(app);
 
   return app;
 };

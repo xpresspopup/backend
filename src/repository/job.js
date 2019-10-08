@@ -24,11 +24,8 @@ export default class jobRepository {
     maxDistance,
   ) {
     try {
+      console.log(searchObject);
       const job = await jobModel.find({
-        $query: {
-          isValid: true,
-          ...searchObject,
-        },
         location: {
           $near: {
             $maxDistance: maxDistance,
@@ -38,6 +35,8 @@ export default class jobRepository {
             },
           },
         },
+        isValid: true,
+        ...searchObject,
       });
       if (job) {
         return job;

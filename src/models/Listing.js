@@ -28,7 +28,7 @@ const listingSchema = new Schema(
     isValid: {
       /** if the listing is still valid */
       type: Boolean,
-      default: false,
+      default: true,
     },
     category: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
     catalogue: [{ type: Schema.Types.ObjectId, ref: 'Catalogue' }],

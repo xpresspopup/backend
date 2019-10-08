@@ -31,7 +31,11 @@ export default (app) => {
     jobController.getJobWithin,
   );
   /** Search jobs by category */
-  route.get('/category', jobController.searchByCategory);
+  route.get(
+    '/category',
+    passport.authenticate('jwt', { session: false }),
+    jobController.searchByCategory,
+  );
   /** Single job by id */
   route.get(
     '/:id',

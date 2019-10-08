@@ -59,10 +59,11 @@ export default class functions {
         jobType: userType,
         category,
       };
+    } else {
+      searchObject = {
+        jobType: userType,
+      };
     }
-    searchObject = {
-      jobType: userType,
-    };
     return searchObject;
   }
 }

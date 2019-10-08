@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-globals */
 import listingService from '../services/listing';
 import LoggerInstance from '../loaders/logger';
 export default class Listing {
@@ -95,21 +94,11 @@ export default class Listing {
     }
   }
 
-  // response is not giving me the right response by distance
   static async within(req, res) {
     try {
       const {
         distance, latitude, longitude, category,
       } = req.query;
-      if (
-        isNaN(parseInt(distance, 10))
-				|| isNaN(parseFloat(latitude, 10))
-				|| isNaN(parseFloat(longitude, 10))
-      ) {
-        return res.status(400).json({
-          message: 'distance, longitude or latitude must be a number',
-        });
-      }
       const listingDetails = {
         distance: parseInt(distance, 10),
         latitude: parseFloat(latitude, 10),
@@ -121,6 +110,17 @@ export default class Listing {
         return res.status(201).json({ doc });
       }
       throw new Error('error getting business listing');
+    } catch (error) {
+      LoggerInstance.error(error);
+      throw new Error(error);
+    }
+  }
+
+  static async searchByCategory(req, res) {
+    try {
+      const { category } = req.query;
+      const doc = await listingService.listingByCategory(res, category);
+      return res.status(200).json({ doc });
     } catch (error) {
       LoggerInstance.error(error);
       throw new Error(error);

@@ -77,4 +77,26 @@ export default class Catalogue {
       throw new Error(error);
     }
   }
+
+  static async updateCatalogueImage(req, res) {
+    try {
+      if (!req.files) {
+        return res.status(400).json('Please upload a file');
+      }
+      const profilePic = req.files[0].path;
+      const userValue = req.user;
+      const result = await catalogueService.uploadPicture(
+        profilePic,
+        userValue,
+        res,
+      );
+      if (result) {
+        return res.status(200).json({ message: 'Image uploaded successfully' });
+      }
+      throw new Error('Error uploading image');
+    } catch (error) {
+      LoggerInstance.error(error);
+      throw new Error(error);
+    }
+  }
 }

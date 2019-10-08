@@ -1,4 +1,3 @@
-import userModel from '../models/User';
 import jobModel from '../models/Job';
 export default class jobRepository {
   // constructor({ userModel, jobModel, logger }) {
@@ -24,7 +23,6 @@ export default class jobRepository {
     maxDistance,
   ) {
     try {
-      console.log(searchObject);
       const job = await jobModel.find({
         location: {
           $near: {
@@ -65,9 +63,11 @@ export default class jobRepository {
 
   static async findJobsById(id) {
     try {
-      const job = await jobModel.findOne({
-        _id: id,
-      });
+      const job = await jobModel
+        .findOne({
+          _id: id,
+        })
+        .populate('category', 'title');
       if (job) {
         return job;
       }

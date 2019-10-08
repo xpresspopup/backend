@@ -148,7 +148,7 @@ export default class authController {
         res,
       );
       if (result) {
-        return res.status(200).json({ mesage: 'Image uploaded successfully' });
+        return res.status(200).json({ message: 'Image uploaded successfully' });
       }
     } catch (error) {
       LoggerInstance.error(error);

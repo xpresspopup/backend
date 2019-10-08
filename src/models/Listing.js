@@ -11,7 +11,7 @@ const listingSchema = new Schema(
       type: String,
       lowercase: true,
     },
-    pictures: { type: String },
+    picture: { type: String },
     address: {
       type: String,
       lowercase: true,

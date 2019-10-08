@@ -25,6 +25,12 @@ export default (app) => {
     passport.authenticate('jwt', { session: false }),
     listingController.getAllListing,
   );
+  /** Search listings by category */
+  route.get(
+    '/category',
+    passport.authenticate('jwt', { session: false }),
+    listingController.searchByCategory,
+  );
   /** query parameter the distance within you, in graduation of 2,4,8,12,24, and longitude and latitude */
   route.get(
     '/within',
@@ -46,5 +52,4 @@ export default (app) => {
     passport.authenticate('jwt', { session: false }),
     listingController.approveListing,
   );
-  // get listing by categories
 };

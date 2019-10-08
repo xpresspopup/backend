@@ -95,7 +95,6 @@ export default class Listing {
     }
   }
 
-  // response is not giving me the right response by distance
   static async within(req, res) {
     try {
       const {
@@ -121,6 +120,17 @@ export default class Listing {
         return res.status(201).json({ doc });
       }
       throw new Error('error getting business listing');
+    } catch (error) {
+      LoggerInstance.error(error);
+      throw new Error(error);
+    }
+  }
+
+  static async searchByCategory(req, res) {
+    try {
+      const { category } = req.query;
+      const doc = await listingService.listingByCategory(res, category);
+      return res.status(200).json({ doc });
     } catch (error) {
       LoggerInstance.error(error);
       throw new Error(error);

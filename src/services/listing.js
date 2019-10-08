@@ -198,4 +198,19 @@ export default class ListingService {
       throw new Error(error);
     }
   }
+
+  static async listingByCategory(res, category) {
+    try {
+      if (category === '' || category.trim().length !== 24) {
+        return errorHandler.serverResponse(res, 'please supply a valid category id', 400);
+      }
+      const listing = await listingRepository.searchListingByCategory(category);
+      if (listing) {
+        return listing;
+      }
+      return false;
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
 }

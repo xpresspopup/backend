@@ -85,9 +85,11 @@ export default class Catalogue {
       }
       const profilePic = req.files[0].path;
       const userValue = req.user;
+      const { id } = req.params;
       const result = await catalogueService.uploadPicture(
         profilePic,
         userValue,
+        id,
         res,
       );
       if (result) {

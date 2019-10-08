@@ -77,13 +77,13 @@ export default class catalogueService {
     }
   }
 
-  static async uploadPicture(profilePicPath, userValue, res) {
+  static async uploadPicture(profilePicPath, userValue, _id, res) {
     try {
       const { url } = await cloud.picture(profilePicPath);
       const { id } = userValue;
       if (url) {
         const doc = Catalogue.findOneAndUpdate(
-          { createdBy: id },
+          { _id, createdBy: id },
           { picture: url },
         );
         if (doc) {

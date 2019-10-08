@@ -42,6 +42,7 @@ export default class userRepository {
       if (result) {
         return result._doc;
       }
+      throw new Error('User not available');
     } catch (error) {
       throw new Error(error);
     }

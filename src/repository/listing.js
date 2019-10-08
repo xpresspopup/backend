@@ -20,9 +20,12 @@ export default class listingRepository {
 
   static async findListingById(id) {
     try {
-      const result = await listingModel.findOne({
-        _id: id,
-      });
+      const result = await listingModel
+        .findOne({
+          _id: id,
+        })
+        .populate('category', 'title');
+      // .populate('catalogue');
       if (result) {
         return result;
       }

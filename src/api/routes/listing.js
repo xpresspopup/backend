@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import passport from 'passport';
-import isEmployerOrAdmin from '../middleware/isEmployerOrAdmin';
+import upload from '../../services/multerService';
 import listingController from '../../controllers/listing';
 
 const route = Router();
@@ -13,18 +13,24 @@ export default (app) => {
     passport.authenticate('jwt', { session: false }),
     listingController.createListing,
   );
-  /** post listing */
-  route.put(
-    '/:id',
-    passport.authenticate('jwt', { session: false }),
-    listingController.updateListing,
-  );
   /** query parameter type which can be all, unapproved, approved, invalid */
   route.get(
     '/',
     passport.authenticate('jwt', { session: false }),
     listingController.getAllListing,
   );
+  /** update listing */
+  route.put(
+    '/:id',
+    passport.authenticate('jwt', { session: false }),
+    listingController.updateListing,
+  );
+  route.get(
+    '/:id',
+    passport.authenticate('jwt', { session: false }),
+    listingController.getListingById,
+  );
+
   /** Search listings by category */
   route.get(
     '/category',
@@ -38,18 +44,19 @@ export default (app) => {
     listingController.within,
   );
   route.get(
-    '/:id',
+    '/approve/:id',
     passport.authenticate('jwt', { session: false }),
-    listingController.getListingById,
+    listingController.approveListing,
+  );
+  route.put(
+    '/images/:id',
+    passport.authenticate('jwt', { session: false }),
+    upload.any(),
+    listingController.updateListingImage,
   );
   route.put(
     '/updateCatalogue/:id',
     passport.authenticate('jwt', { session: false }),
     listingController.updateCatalogue,
-  );
-  route.get(
-    '/approve/:id',
-    passport.authenticate('jwt', { session: false }),
-    listingController.approveListing,
   );
 };

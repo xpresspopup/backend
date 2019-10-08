@@ -10,6 +10,7 @@ import emailService from './emailService2';
 import emailTemplate from '../helpers/emailTemplates';
 import config from '../config';
 import functions from '../helpers/functions';
+import cloud from './cloudinary';
 export default class ListingService {
   //   constructor ({userRepository, jobRepository logger}) {
   // this.userRepository = userRepository
@@ -228,6 +229,27 @@ export default class ListingService {
       return false;
     } catch (error) {
       throw new Error(error);
+    }
+  }
+
+  static async uploadPicture(profilePicPath, userValue, _id, res) {
+    try {
+      const { url } = await cloud.picture(profilePicPath);
+      const { id } = userValue;
+      if (url) {
+        const doc = listingRepository.updateBusinessListing(
+          { _id, createdBy: id },
+          { picture: url },
+        );
+        if (doc) {
+          return doc;
+        }
+        return false;
+      }
+      return res.status(400).json('Something went wrong with the image upload');
+    } catch (error) {
+      LoggerInstance.error(error);
+      throw error;
     }
   }
 }

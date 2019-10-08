@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import passport from 'passport';
 import isBusinessOwner from '../middleware/businessOwner';
+import upload from '../../services/multerService';
 import catalogueController from '../../controllers/catalogue';
 
 const route = Router();
@@ -24,6 +25,13 @@ export default (app) => {
     passport.authenticate('jwt', { session: false }),
     isBusinessOwner,
     catalogueController.updateCatalogue,
+  );
+  route.put(
+    '/images/:id',
+    passport.authenticate('jwt', { session: false }),
+    isBusinessOwner,
+    upload.any(),
+    catalogueController.updateCatalogueImage,
   );
   route.delete(
     '/:id',

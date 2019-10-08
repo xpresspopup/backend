@@ -185,7 +185,7 @@ export default class ListingService {
       const {
         category, distance, latitude, longitude,
       } = listingDetails;
-      if (!category || !distance) {
+      if (!category || category.trim().length !== 24 || !distance) {
         return res
           .status(400)
           .json({ message: 'please supply a valid query parameter' });

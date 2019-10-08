@@ -49,20 +49,14 @@ export default class listingRepository {
     }
   }
 
-  static async getListingWithinDistance({
-    latitude,
-    longitude,
-    distance,
-    category,
-  }) {
-    console.log(latitude, longitude, distance, category);
+  static async getListingWithinDistance(
+    {
+      latitude, longitude, distance, category,
+    },
+    searchObject,
+  ) {
     try {
       const result = await listingModel.find({
-        $query: {
-          isValid: true,
-          isApproved: true,
-          // category,
-        },
         location: {
           $near: {
             $maxDistance: distance,
@@ -72,6 +66,7 @@ export default class listingRepository {
             },
           },
         },
+        ...searchObject,
       });
       if (result) {
         return result;

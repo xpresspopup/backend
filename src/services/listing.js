@@ -187,8 +187,10 @@ export default class ListingService {
           .status(400)
           .json({ message: 'please supply a valid query parameter' });
       }
+      const searchObject = { category, isValid: true };
       const result = await listingRepository.getListingWithinDistance(
         listingDetails,
+        searchObject,
       );
       return result;
     } catch (error) {

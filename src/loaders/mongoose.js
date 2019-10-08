@@ -3,9 +3,9 @@ import config from '../config';
 import LoggerInstance from './logger';
 let connectionString;
 if (process.env.NODE_ENV === 'test') {
-  connectionString = config.databaseURI;
-} else {
   connectionString = config.databaseURL;
+} else {
+  connectionString = config.databaseURI;
 }
 export default async () => {
   try {

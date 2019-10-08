@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-globals */
 import listingService from '../services/listing';
 import LoggerInstance from '../loaders/logger';
 export default class Listing {
@@ -100,15 +99,6 @@ export default class Listing {
       const {
         distance, latitude, longitude, category,
       } = req.query;
-      if (
-        isNaN(parseInt(distance, 10))
-				|| isNaN(parseFloat(latitude, 10))
-				|| isNaN(parseFloat(longitude, 10))
-      ) {
-        return res.status(400).json({
-          message: 'distance, longitude or latitude must be a number',
-        });
-      }
       const listingDetails = {
         distance: parseInt(distance, 10),
         latitude: parseFloat(latitude, 10),

@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-globals */
 import Joi from 'joi';
 import LoggerInstance from '../loaders/logger';
 import validation from './validations/listing';
@@ -181,11 +182,23 @@ export default class ListingService {
 
   static async listingWithin(listingDetails, res) {
     try {
-      const { category, distance } = listingDetails;
+      const {
+        category, distance, latitude, longitude,
+      } = listingDetails;
       if (!category || !distance) {
         return res
           .status(400)
           .json({ message: 'please supply a valid query parameter' });
+      }
+      if (isNaN(distance) || isNaN(latitude) || isNaN(longitude)) {
+        return res.status(400).json({
+          message: 'distance, longitude or latitude must be a number',
+        });
+      }
+      if (distance <= 0 || distance >= 20) {
+        return res.status(400).json({
+          message: 'distance must be within 1 - 20 ',
+        });
       }
       const searchObject = { category, isValid: true };
       const result = await listingRepository.getListingWithinDistance(
@@ -202,7 +215,11 @@ export default class ListingService {
   static async listingByCategory(res, category) {
     try {
       if (category === '' || category.trim().length !== 24) {
-        return errorHandler.serverResponse(res, 'please supply a valid category id', 400);
+        return errorHandler.serverResponse(
+          res,
+          'please supply a valid category id',
+          400,
+        );
       }
       const listing = await listingRepository.searchListingByCategory(category);
       if (listing) {
